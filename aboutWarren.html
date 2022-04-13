@@ -9,10 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Warren Zhu" />
 
 
-<title>An Analysis of BC Grade-to-Grade Transitions</title>
+<title>About the Author</title>
 
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -29,9 +28,6 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -226,69 +222,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -296,16 +229,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -342,35 +265,15 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">An Analysis of BC Grade-to-Grade Transitions</h1>
-<h4 class="author">Warren Zhu</h4>
+<h1 class="title toc-ignore">About the Author</h1>
 
 </div>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>This site was created with the intention of answering the following question:</p>
-<p><strong>How has the quality of education/opportunities in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., indigenous? Special needs?)?</strong></p>
-<p>Note that although this is just one question, it is a very complex one, and so naturally, a lot of data is required to answer it. Thus, this website uses <a href="https://catalogue.data.gov.bc.ca/">open data from British Columbia</a>–specifically, <a href="https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition">the 1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics</a>. To gather information regarding the districts, this site also uses <a href="https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information">information regarding each district’s office, also published by the British Columbia Education Analytics</a>. By using the grade-to-grade transitions as a metric for the quality of education/opportunities, we can formulate a nuanced response to the question.</p>
-<p>If you wish to see the Github repository for this site, <a href="https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions">you can find it here</a>.</p>
-</div>
-<div id="methods" class="section level2">
-<h2>Methods</h2>
-</div>
-<div id="results" class="section level2">
-<h2>Results</h2>
-<pre class="r"><code>#WORK IN PROGRESS</code></pre>
-</div>
-<div id="conclusions-and-summary" class="section level2">
-<h2>Conclusions and Summary</h2>
-<pre class="r"><code>#WORK IN PROGRESS</code></pre>
-</div>
+<p>This website was published by Warren Zhu in April 2022, as part of his <a href="https://jsc370.github.io/jsc370-2022/">JSC370: Data Science II</a> class. As of April 2022, he is a student of the University of Toronto, and he specializes in Data Science. <a href="https://www.linkedin.com/in/warren-zhu/">His LinkedIn page can be found here.</a></p>
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -403,35 +306,6 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

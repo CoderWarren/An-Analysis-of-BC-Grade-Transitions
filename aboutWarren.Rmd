@@ -1,0 +1,8 @@
+---
+title: "About the Author"
+output: 
+    html_document:
+        toc: FALSE
+---
+
+This website was published by Warren Zhu in April 2022, as part of his [JSC370: Data Science II](https://jsc370.github.io/jsc370-2022/) class. As of April 2022, he is a student of the University of Toronto, and he specializes in Data Science. [His LinkedIn page can be found here.](https://www.linkedin.com/in/warren-zhu/)

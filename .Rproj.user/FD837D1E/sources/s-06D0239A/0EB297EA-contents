@@ -1,19 +1,15 @@
 name: "my-website"
 output_dir: "."
 navbar:
-  title: "JSC370 Final Project"
+  title: "An Analysis of BC Grade-to-Grade Transitions"
   left:
-    - text: "Project"
+    - text: "Home"
       href: index.html
-    - text: "Lab Description"
-      href: lab12-website.html
-    - text: "Data Exploration"
-      href: JSC370-Midterm.html
+    - text: "About the Author"
+      href: aboutWarren.html
   right:
-    - icon: fa-github fa-lg
-      href: https://github.com/JSC370/jsc370-2022/
-    - text: "JSC370 Home"
-      href: https://jsc370.github.io/jsc370-2022/
+    - text: "My LinkedIn Page (cus why not lol)"
+      href: https://www.linkedin.com/in/warren-zhu/
 output:
   html_document:
     theme: cosmo
