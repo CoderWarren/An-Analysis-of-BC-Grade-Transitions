@@ -1,9 +1,8 @@
 ---
-title: "JSC370 Midterm Project"
-author: "Warren Zhu"
-date: "`r format(Sys.time(), '%d %B %Y')`"
-output: html_document
-link-citations: yes
+title: "JSC370 Exploratory Data Analysis"
+output: 
+    html_document:
+        toc: FALSE
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
