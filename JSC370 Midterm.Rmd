@@ -1,0 +1,528 @@
+---
+title: "JSC370 Midterm Project"
+author: "Warren Zhu"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+link-citations: yes
+---
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+# Set up everything here. This is hidden from the final output
+#install.packages(c("data.table","leaflet"))
+library(readxl)
+library(data.table)
+library(leaflet)
+library(tidyverse)
+library(ggplot2)
+library(mgcv)
+```
+
+## Introduction
+
+Having grown up in British Columbia, I have decided to use [open data from British Columbia](https://catalogue.data.gov.bc.ca/). To be more specific, for this assignment I am using [1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). To gather information regarding the districts, I used [information regarding each district's office, also published by the British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information).
+
+Our main question of interest for this project is: **How has the quality of education/opportunities (as measured by grade-to-grade transition) in the past 30 years differed in different kinds of schools, as well as different types of BC students (i.e., indigenous? Special needs?)?**
+
+Note that although this is just one question, it is a very complex one, and we will soon see that a lot of thought (and coding/time) is required to answer it.
+
+DISCLAIMER: this report will not include unformatted output or dataset summaries. If you wish to see the code behind this report, you can access [the github repository for this project here](https://github.com/CoderWarren/Midterm). Everything you need will be in the '.Rmd' file.
+
+## Methods
+
+```{r read-in, echo=FALSE, message=FALSE, warning=FALSE}
+# Read in the 1992 to 2001 data
+data_1 <- read_excel("data_transitions/grtogrtransition_1992-93_to_2000-01.xlsx")
+# Read in the 2001 to 2011 data
+data_2 <- read_excel("data_transitions/grtogrtransition_2001-02_to_2010-11.xlsx")
+# Read in the 2011 to 2021 data
+data_3 <- read_excel("data_transitions/grtogrtransition_2011-12_to_2020-21.xlsx")
+# Read in the locations
+locations <- data.table::fread("data_districts/current_district_office_information.csv")
+```
+
+```{r explore1, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Check the dimensions, headers and footers of data 1, as well as the variable types
+dim(data_1)
+head(data_1)
+tail(data_1)
+summary(data_1)
+
+# Check the dimensions, headers and footers of data 2, as well as the variable types
+dim(data_2)
+head(data_2)
+tail(data_2)
+summary(data_2)
+
+# Check the dimensions, headers and footers of data 3, as well as the variable types
+dim(data_3)
+head(data_3)
+tail(data_3)
+summary(data_3)
+
+# Check the dimensions, headers and footers of locations, as well as the variable types
+dim(locations)
+head(locations)
+tail(locations)
+summary(locations)
+```
+
+```{r explore2, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Just me checking to see what DATA_LEVEL consists of:
+unique(data_1[c("DATA_LEVEL")])
+unique(data_2[c("DATA_LEVEL")])
+unique(data_3[c("DATA_LEVEL")])
+
+# This shows us there are 3 possible values:
+
+# Province Level
+# District Level
+# School Level
+
+# Just me checking to see what PUBLIC_OR_INDEPENDENT consists of:
+unique(data_1[c("PUBLIC_OR_INDEPENDENT")])
+unique(data_2[c("PUBLIC_OR_INDEPENDENT")])
+unique(data_3[c("PUBLIC_OR_INDEPENDENT")])
+
+# This shows us there are 3 possible values:
+
+# Province - Total
+# BC Public School
+# BC Independent School
+
+# Just me checking to see if MEASURE_NAME only consists of one unique value
+unique(data_1[c("MEASURE_NAME")])
+unique(data_2[c("MEASURE_NAME")])
+unique(data_3[c("MEASURE_NAME")])
+
+# Yup it does
+
+# Check the unique district numbers to assess situation of joining the locations
+unique(data_1[c("DISTRICT_NUMBER")])
+unique(data_2[c("DISTRICT_NUMBER")])
+unique(data_3[c("DISTRICT_NUMBER")])
+
+# We see we have 60 districts, which matches the dimensions of our locations.
+
+# Check what sub populations values we have available
+unique(data_1[c("SUB_POPULATION")])
+unique(data_2[c("SUB_POPULATION")])
+unique(data_3[c("SUB_POPULATION")])
+
+# We see that we have:
+
+# All Students
+# Non Special Needs
+# Non Indigenous
+# Indigenous
+# Special Needs
+```
+
+Our data came in the form of 3 '.xlsx' files containing information regarding BC grade-to-grade transitions on a provincial, district and school level, while the data regarding the location of the offices of each district was in the form of a '.csv' file. The three '.xlsx' files each contained information on different periods: one file contained information from 1992/93 to 2000/01, another contained information from 2000/01 to 2010/11, and our last one contained information from 2010/11 to 2020/21. There are many rows in each of the '.xlsx' files (the first had 374654, the second had 541501, and the third had 536978), but it is also worth noting that the data was not tidy, as some rows recorded data on "all students" whilst other rows recorded data on "Indigenous students", so each row should not be treated as its own observation.
+
+```{r explore3, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Here, we prepare the merged data set
+
+# Combine all the data
+data <- rbind(data_1, data_2, data_3)
+
+# Remove all missing values
+data <- data[!(data$DENOMINATOR_STUDIED_COHORT=="Msk"|
+                 data$NUMERATOR_NUM_SUCCESSFUL=="Msk"|
+               data$G2G_TRANSITION_RATE=="Msk"),]
+
+# Make an integer variable storing the year
+data$year <- strtoi(substr(data$SCHOOL_YEAR, 1, 4))
+
+# Make the grade to grade transition rates a float
+data$rate <- as.double(data$G2G_TRANSITION_RATE)
+
+# Make the number of students an integer
+data$num_students <- as.integer(data$DENOMINATOR_STUDIED_COHORT)
+
+# Make the number of students who successfully moved on an integer
+data$num_successful <- as.integer(data$NUMERATOR_NUM_SUCCESSFUL)
+
+# Make the student grade a factor
+data$grade <- as.factor(data$STUDENT_GRADE)
+
+# Drop the unnecessary columns
+data <- subset(data, select=-c(BASE_YEAR, SCHOOL_YEAR, G2G_TRANSITION_RATE,
+                               MEASURE_NAME, DENOMINATOR_STUDIED_COHORT,
+                               NUMERATOR_NUM_SUCCESSFUL, STUDENT_GRADE,
+                               DISTRICT_NAME))
+```
+
+After combining our data into one large data table, and removing entries in our table with missing data, I felt as though it would be most appropriate to look at the situation from all three levels. We begin by making very basic plots to understand the situation from a provincial view. Then, we will make a couple of more sophisticated plots at a district level. Finally, we will perform model fitting on a school level. By mimicking the structure of our data, we can make the most out of it!
+
+## Preliminary Results
+
+### Province Level (Plots)
+
+Let us begin by examining some plots produced by the data from a provincial level.
+
+```{r plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 1: A graph depicting the percentage of students in BC of each grade level that successfully transition to the next grade between the years 1993 and 2020."}
+# Plot for province total
+data %>% 
+  filter(DATA_LEVEL == "Province Level") %>%
+  filter(PUBLIC_OR_INDEPENDENT == "Province - Total") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  ggplot(aes(x=year, y=rate, color=grade)) +
+  geom_line() +
+  xlab("Year") +
+  ylab("Percentage of BC Students who Transitioned to the Next Grade") +
+  labs(title="Rate of successful grade transitions (1993-2020)",
+       color="Student Grade Level")
+```
+
+From this time plot, we can see that overall, as time went by, the percentage of students that successfully transitioned to the next grade increased. This is the most prominent for students in grades 8-11. It is also worth noting that the percentage of students in grades 10/11 that successfully transition to the next grade are significant lower than the percentage of students in the lower grades that successfully transition.
+
+Furthermore, if we make the distinction between private and public schools, we would see following.
+
+```{r plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2: A graph depicting the percentage of students in BC of each grade level for private and public schools that successfully transition to the next grade between the years 1993 and 2020."}
+# Plot for province total split by school type
+data %>% 
+  filter(DATA_LEVEL == "Province Level") %>%
+  filter(PUBLIC_OR_INDEPENDENT != "Province - Total") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  ggplot(aes(x=year, y=rate, color=grade)) +
+  geom_line() +
+  facet_wrap(~PUBLIC_OR_INDEPENDENT) +
+  xlab("Year") +
+  ylab("Percentage of BC Students who Transitioned to the Next Grade") +
+  labs(title="Rate of successful grade transitions (1993-2020)",
+       color="Student Grade Level")
+```
+
+From this graph we can see that the increase in the rate of successful grade transitions is significantly higher in public schools. Furthermore, private schools (i.e., Independent Schools) seem to have a much higher rate of transition, especially for grade levels 8 and above. This does make sense, as private schools are often times more expensive, and so the students attending them naturally live in my affluent families. Keeping this in mind, let us focus on BC students of grade level 8 and above (which is when high school starts in BC) as we move on to a district level.
+
+### District Level (Plots and figures)
+
+We begin by checking for trends in high school BC students, so plotting the trend in the rate of transition for all students in each grade level seems to be a reasonable thing to do.
+
+```{r explore4, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Drop all the rows in our table regarding data on a "Province Level"
+# This is because we will not use it for the remainder of the assignment
+data <- data[!(data$DATA_LEVEL=="Province Level"),]
+data$district <- as.integer(data$DISTRICT_NUMBER)
+
+# Now that we're on a district level, we can use the location data
+data <- left_join(x=data, y=locations, by=c("district" = "DISTRICT_NUMBER"))
+
+# Drop columns that aren't used
+data <- subset(data, select=-c(DISTRICT_PROVINCE, DISTRICT_POSTAL_CODE,
+                               DISTRICT_PHONE_NUMBER, DISTRICT_WEBSITE))
+
+# Turn our district into a factor variable
+data$district <- as.factor(data$district)
+
+# Check what we have
+summary(data)
+```
+
+```{r explore5, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Check if there are any independent schools listed
+data %>%
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(PUBLIC_OR_INDEPENDENT == "BC Independent School")
+
+# There are none!
+```
+
+```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3: A graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
+# School total
+data %>% 
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  filter(grade==8|grade==9|grade==10|grade==11) %>% #It's factored, can't use ">="
+  ggplot(aes(x=year, y=rate, color=district)) +
+  geom_line() +
+  facet_wrap(~grade) +
+  xlab("Year") +
+  ylab("Percentage of Students who Transitioned to the Next Grade") +
+  labs(title="Rate of grade transitions for BC Students (1993-2020)",
+       color="School District")
+```
+
+When we examine the trends at this level, it becomes very apparent that the percentage of students who transitioned to the next grade for Grade 11 fluctuates very dramatically. I personally find this much more interesting compared to the patterns that can be observed in grades 8 and 9. As such, the next thing that I did was I examined the distribution of each of the rates via side-by-side boxplots.
+
+```{r plot4, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4: A boxplot depicting the percentage of grade 10 BC students from each district that successfully transitioned to the next grade between the years 1993 and 2020."}
+# School total
+data %>% 
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  filter(grade==10) %>%
+  ggplot(aes(x=factor(year), y=rate)) +
+  geom_boxplot() +
+  xlab("Year") +
+  ylab("Percentage of Students who Transitioned to the Next Grade") +
+  labs(title="Rate of grade transitions for grade 10 BC Students (1993-2020)",
+       color="School District") +
+  theme(axis.text.x=element_blank()) + #If we don't hide axis text it overlaps
+  ylim(c(30,100))
+```
+
+```{r plot5, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5: A boxplot depicting the percentage of grade 11 BC students from each district that successfully transition to the next grade between the years 1993 and 2020."}
+# School total
+data %>% 
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  filter(grade==11) %>%
+  ggplot(aes(x=factor(year), y=rate)) +
+  geom_boxplot() +
+  xlab("Year") +
+  ylab("Percentage of Students who Transitioned to the Next Grade") +
+  labs(title="Rate of grade transitions for grade 11 BC Students (1993-2020)",
+       color="School District") +
+  theme(axis.text.x=element_blank()) +
+  ylim(c(30,100))
+```
+
+A quick comparison between the two box plots shows that the variation of the transition rate for grade 11 BC students is dramatically higher than that of grade 10 BC students. Our second graph also shows us that from the variation in the rate of transitions from grade 11 to 12 from 2015 to 2020 has been significantly reduced (when compared with the past years). The median of the rates has also increased over time. As such, this plot suggests that there is more equality (due to the decrease in variation) in terms of education/opportunities across the districts, and the education/opportunities offered is of a higher quality (as indicated by the higher median).
+
+Let us now take a look at a map to get a rough idea of where each of these districts are. The first interactive map below illustrates the situation in 1993, whilst the second one illustrates the situation in 2020.
+
+```{r plot6, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6: Interative map displaying the location of the board offices for each district. The color of the points is based on the rate of successful transitions from Grade 11 to 12 in 1993."}
+# Data for the first plot
+data %>%
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(grade==11) %>%
+  filter(year==1993) -> plot_data_1
+
+# Data for the second plot
+data %>%
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(grade==11) %>%
+  filter(year==2020) -> plot_data_2
+
+# Data for both
+plot_data_both <- rbind(plot_data_1, plot_data_2)
+
+# A function to determine the color of the points
+color_me <- colorNumeric(c('blue', 'purple', 'red'),
+                       domain=plot_data_both$rate[!is.na(plot_data_both$rate)],
+                       na.color=NA)
+
+# The actual plot
+plot_data_1 %>%
+  leaflet() %>%
+  addProviderTiles('OpenStreetMap') %>%
+    addCircles(lat=~Y, lng=~X, color=~color_me(rate),
+               label=~paste(round(rate,2), 'Grade 11 to 12 Transition Rate'),
+                            opacity=1, fillOpacity=1, radius=10000) %>%
+  addLegend('bottomleft', pal=color_me, values=plot_data_1$rate,
+            title="Grade 11 to 12 Transition Rate (%)", opacity=1,
+            na.label=NULL)
+```
+
+```{r plot7, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 7: Interative map displaying the location of the board offices for each district. The color of the points is based on the rate of successful transitions from Grade 11 to 12 in 2020."}
+data %>%
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(grade==11) %>%
+  filter(year==2020) -> plot_data_2
+
+# The actual plot
+plot_data_2 %>%
+  leaflet() %>%
+  addProviderTiles('OpenStreetMap') %>%
+    addCircles(lat=~Y, lng=~X, color=~color_me(rate),
+               label=~paste(round(rate,2), 'Grade 11 to 12 Transition Rate'),
+                            opacity=1, fillOpacity=1, radius=10000) %>%
+  addLegend('bottomleft', pal=color_me, values=plot_data_2$rate,
+            title="Grade 11 to 12 Transition Rate (%)", opacity=1,
+            na.label=NULL)
+```
+
+As the second graph has significantly more red points compared to the blue/purple points in the first graph, which shows that the percentage of students that transition from grade 11 to grade 12 has certain gone up over the years. I also found it interesting that many of school boards were close together near Vancouver Island.
+
+Let us now have a quick look at the difference between the trend for eleventh grade indigenous students and non-indigenous students.
+
+```{r plot8, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 8: A graph displaying the percentage of BC grade 11 students that successfully transition to grade 12 between the years 1993 and 2020. It compares how this differs between Indigenous and Non-Indigenous Students."}
+data %>% 
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION=="Non Indigenous"|SUB_POPULATION=="Indigenous") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  filter(grade==11) %>%
+  ggplot(aes(x=factor(year), y=rate)) +
+  geom_boxplot() +
+  facet_wrap(~SUB_POPULATION, nrow=1) +
+  xlab("Year") +
+  ylab("Percentage of Students who Transitioned to the Next Grade") +
+  labs(title="Rate of grade transitions for grade 11 BC Students (1993-2020)",
+       color="School District") +
+  theme(axis.text.x=element_blank())
+
+
+# The below version was just too messy
+
+#data %>% 
+#  filter(DATA_LEVEL == "District Level") %>%
+#  filter(FACILITY_TYPE == "All Facility Types") %>%
+#  filter(grade==11) %>%
+#  filter(SUB_POPULATION=="Non Indigenous"|SUB_POPULATION=="Indigenous") %>%
+#  ggplot(aes(x=year, y=rate, color=district)) +
+#  geom_line() +
+#  facet_wrap(~SUB_POPULATION) +
+#  xlab("Year") +
+#  ylab("Percentage of Students who Transitioned to the Next Grade") +
+#  labs(title="Rate of grade transitions for BC Students (1993-2020)",
+#       color="School District")
+```
+
+Here, we can see that the median percentage of grade 11 indigenous students per district who moved on to grade 12 is significantly lower than that of non-indigenous students in 1993. This difference is much smaller in 2020, but the median percentage is still less. The same can be said about the variation: the interquartile range (IQR) for the indigenous 11th graders in different districts was much larger than that of the non-indigenous counterparts in 1993. In 2020, this different has indeed shrunk, but the IQR for the indigenous children is still roughly twice that of their non-indigenous counterparts. As such, we can certainly say that there's an improvement in the quality of education/opportunities for both indigenous children and non-indigenous children, but more work needs to be done!
+
+Let us now have a quick look at the difference between the trend for eleventh grade students with special needs, and students without special needs.
+
+```{r plot9, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 9: A graph displaying the percentage of BC grade 11 students that successfully transition to grade 12 between the years 1993 and 2020. It compares how this differs between Special Needs and Non-Special Needs Students."}
+data %>% 
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION=="Non Special Needs"|SUB_POPULATION=="Special Needs") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  filter(grade==11) %>%
+  ggplot(aes(x=factor(year), y=rate)) +
+  geom_boxplot() +
+  facet_wrap(~SUB_POPULATION, nrow=1) +
+  xlab("Year") +
+  ylab("Percentage of Students who Transitioned to the Next Grade") +
+  labs(title="Rate of grade transitions for grade 11 BC Students (1993-2020)",
+       color="School District") +
+  theme(axis.text.x=element_blank())
+
+
+# The version below was too messy
+
+#data %>% 
+#  filter(DATA_LEVEL == "District Level") %>%
+#  filter(FACILITY_TYPE == "All Facility Types") %>%
+#  filter(grade==11) %>%
+#  filter(SUB_POPULATION=="Non Special Needs"|SUB_POPULATION=="Special Needs") %>%
+#  ggplot(aes(x=year, y=rate, color=district)) +
+#  geom_line() +
+#  facet_wrap(~SUB_POPULATION, nrow=2) +
+#  xlab("Year") +
+#  ylab("Percentage of Students who Transitioned to the Next Grade") +
+#  labs(title="Rate of grade transitions for BC Students (1993-2020)",
+#       color="School District")
+```
+
+The trend grade 11 transitions for students with special needs and those without is very similar to what was seen between indigenous and non-indigenous children--the variation for both of the rates decreased over time, but the variation of the rates for the students with special needs was always higher than the rate for students with special needs. The difference now is minimal though (at least when compared to the past). Likewise, the median rates for both increased over time (although there was a period of time in which the special needs rates were decreasing), but the non-special needs students had a higher median rate for a while now. That said, the difference in the median rate in 2020 was very small.
+
+It is time to move down one more level to the school level.
+
+### School Level (Plots and Model Fitting)
+
+```{r explore6, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Drop all the rows in our table regarding data on a "District Level"
+# This is because we will not use it for the remainder of the assignment
+data <- data[!(data$DATA_LEVEL=="District Level"),]
+```
+
+```{r plot10, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 9: A graph displaying the percentage of BC grade 11 students that successfully transition to grade 12 between the years 1993 and 2020. It compares how this differs between Special Needs and Non-Special Needs Students.", eval=FALSE}
+data %>% 
+  filter(SUB_POPULATION=="All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  filter(grade == 11) %>%
+  ggplot(aes(x=factor(year), y=rate)) +
+  geom_boxplot() +
+  xlab("Year") +
+  ylab("Percentage of Students who Transitioned to the Next Grade") +
+  labs(title="Rate of grade transitions for grade 11 BC Students (1993-2020)",
+       color="School District") +
+  theme(axis.text.x=element_blank())
+
+##Too chaotic, so I set eval to false. Not going to use this.
+```
+
+```{r advanced-reg-1, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE, fig.show='hide'}
+mod_data_1 <- data %>%
+  filter(SUB_POPULATION=="Non Indigenous"|SUB_POPULATION=="Indigenous")
+
+#gam_mod<- gam(rate ~ s(year, bs="cr", k=10) + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, #data=mod_data_1)
+#summary(gam_mod)
+#plot(gam_mod)
+
+lm_mod_1 <- lm(rate ~ year + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, data=mod_data_1)
+summary(lm_mod_1)
+#plot(lm_mod_1)
+```
+
+```{r advanced-reg-2, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE, fig.show='hide'}
+mod_data_2 <- data %>%
+  filter(SUB_POPULATION=="Non Special Needs"|SUB_POPULATION=="Special Needs")
+
+#gam_mod<- gam(rate ~ s(year, bs="cr", k=10) + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, #data=mod_data_2)
+#summary(gam_mod)
+#plot(gam_mod)
+
+lm_mod_2 <- lm(rate ~ year + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, data=mod_data_2)
+summary(lm_mod_2)
+#plot(lm_mod_2)
+```
+
+```{r advanced-reg-3, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE, fig.show='hide'}
+mod_data_3 <- data %>%
+  filter(SUB_POPULATION=="All Students")
+
+#gam_mod<- gam(rate ~ s(year, bs="cr", k=10) + grade + PUBLIC_OR_INDEPENDENT, #data=mod_data_2)
+#summary(gam_mod)
+#plot(gam_mod)
+
+lm_mod_3 <- lm(rate ~ year + grade + PUBLIC_OR_INDEPENDENT, data=mod_data_3)
+summary(lm_mod_3)
+#plot(lm_mod_3)
+```
+
+I ended up fitting three linear models that predicted grade to grade transition rate (i.e., the grade-to-grade transition rate of a specific school, grade level, and a certain population). The first model further split the groups into indigenous students and non-indigenous students, while the second model split the group into ones with special needs and without. The predictors I used was the year, the grade level of interest, and whether the school was public or private. I also used the sub-population of interest in my first two models.
+
+Note that the point of creating these models was not to create a model for future prediction--rather, I created the models for the sake of interpretability. As such, although my models all had $R^2$ values less than 0.25, I was not bothered. I've included some important summary statistics from the models.
+
+```{r table_maker_1, echo=FALSE, message=FALSE, warning=FALSE}
+tibble(`Model` = c("Model 1: Indigenous/Non-Indigenous",
+                   "Model 2: Special Needs/Non-Special Needs",
+                   "Model 3: All Students"),
+       `Adjusted R-Squared` = c(0.2164, 0.1542, 0.1551),
+       `Residual Standard Error`=c(5.73, 5.482, 4.632),
+       `Estimated Rate Increase per Year` = c(0.1513,0.133,0.089253))%>% 
+  knitr::kable(caption = "Various Important Statistics from models")
+```
+
+One of the main takeaways from the creation of these models is that all of the variables had an extremely small p-value (less than 1e-16), which hints at the fact that it is very likely that all of these variables are related. (As all of the p-values were really small I decided against adding them into the table.) As the estimated rate increases per year are all positive, this supports our claim that over time our percentage of successful grade to grade transitions has increase, which suggests the education is improving.
+
+In terms of sub-populations, the first model suggested that Indigenous students had a 2.502% lower mean rate of successful transitions, while our second model suggested that students with special needs have a 1.126% lower mean rate of successful transitions compared to their non-Indigenous and non-special needs counterparts, respectively.
+
+Another interesting find was the estimate of the difference in rates between each of the grade levels.
+
+```{r table_maker_2, echo=FALSE, message=FALSE, warning=FALSE}
+tibble(`Model` = c("Model 1: Indigenous/Non-Indigenous",
+                   "Model 2: Special Needs/Non-Special Needs",
+                   "Model 3: All Students"),
+       `Grade 7`=c(0.4764, 0.6593, 0.639553),
+       `Grade 8` = c(-1.920, -1.074, -1.246918),
+       `Grade 9`=c(-3.385, -2.283, -2.561493),
+       `Grade 10` = c(-5.901, -4.505, -5.153871),
+       `Grade 11`=c(-9.013, -7.269, -8.080331))%>% 
+  knitr::kable(caption = "Grade Level Transition Rate Difference Estimates with respect to the Grade 1 group")
+```
+
+I found that the model indeed suggests students in high school (again, BC high school starts at grade 8) are significantly less likely to transition to their next grade compared to their elementary school counterparts. This is shown in the table as the difference in rates with respect to the grade 1 group for grades 8-11 are significantly larger in magnitude compared to that of grade 7. This is probably due to the riskier behaviors certain high school students have, which may result them getting in all sorts of trouble.
+
+The last thing I want to bring up is the difference in the transition rates between public and private schools. As shown in the table below, our model does in fact suggest that the transition rate for public schools is smaller than that of private schools--however, this difference is not as drastic as the difference between high school transition rates and elementary school transition rates.
+
+```{r table_maker_3, echo=FALSE, message=FALSE, warning=FALSE}
+tibble(`Model` = c("Model 1: Indigenous/Non-Indigenous",
+                   "Model 2: Special Needs/Non-Special Needs",
+                   "Model 3: All Students"),
+       `Public School Rate Difference`=c(-0.7721, -0.4520, -0.805097))%>% 
+  knitr::kable(caption = "Transition Rate Difference Estimate for Public and Private Schools")
+```
+
+## Conclusion/summary
+
+In conclusion, from our plots and models, we found that the quality of education/opportunities has increased significantly in the past 30 years, particularly in public high schools, and for indigenous students and students with special needs, as it is within these groups where the grade-to-grade transition rates are among the lowest. There is a lot of variability in the transition rate of such groups especially between 1993-2013, but the last few years has shown a significant education in this variability, which suggests fairer treatment for all. Non-Indigenous, Non-special needs, and private school students have also seen an increase in the rate of successful grade-to-grade transitions over time as well as a decrease in variability over the years, but this general increase in rate and decrease in variability is significantly smaller than it's aforementioned--yet, their median rates are in general still higher, and their variability lower. As such, this suggests that although there have been improvements to the education system, further work must be done to balance out the inequalities.

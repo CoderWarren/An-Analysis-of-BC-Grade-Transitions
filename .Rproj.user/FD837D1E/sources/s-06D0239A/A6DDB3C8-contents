@@ -1,0 +1,12 @@
+---
+title: "JSC370 Lab 12"
+author: "Warren"
+output: 
+    html_document:
+        toc: TRUE
+        toc_float: TRUE
+---
+
+This is my second page.
+
+It doesn't do much.
