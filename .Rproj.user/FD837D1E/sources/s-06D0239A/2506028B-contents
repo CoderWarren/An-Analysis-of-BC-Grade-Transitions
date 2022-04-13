@@ -1,11 +1,27 @@
 ---
-title: "JSC370 Final Project"
+title: "An Analysis of BC Grade-to-Grade Transitions"
 author: "Warren Zhu"
 output: 
     html_document:
         toc: TRUE
         toc_float: TRUE
 ---
+
+## About this site
+
+This site seeks to explore the following question: 
+
+**How has the quality of education/opportunities (as measured by grade-to-grade transition) in the past 30 years differed in different kinds of schools, as well as different types of BC students (i.e., indigenous? Special needs?)?**
+
+Note that although this is just one question, it is a very complex one, and we will soon see that a lot of data is required to answer it.
+
+This website uses [open data from British Columbia](https://catalogue.data.gov.bc.ca/)--specifically, [the 1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). To gather information regarding the districts, this site also uses [information regarding each district's office, also published by the British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information).
+
+If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
+
+
+
+
 
 <br>
 
