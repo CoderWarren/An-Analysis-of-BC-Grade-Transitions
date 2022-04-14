@@ -67,6 +67,13 @@ data <- subset(data, select=-c(BASE_YEAR, SCHOOL_YEAR, G2G_TRANSITION_RATE,
 ```
 
 ```{r data-prep-2, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+data %>% 
+  filter(DATA_LEVEL == "Province Level") %>%
+  filter(PUBLIC_OR_INDEPENDENT == "Province - Total") %>%
+  filter(FACILITY_TYPE == "All Facility Types") -> data_province
+```
+
+```{r data-prep-3, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
 # Drop all the rows in our table regarding data on a "Province Level"
 # This is because we will not use it for the remainder of the assignment
 data_district <- data[!(data$DATA_LEVEL=="Province Level"),]
@@ -101,27 +108,77 @@ If you wish to see the Github repository for this site, [you can find it here](h
 
 ## Methods
 
-### Figure 1: {.tabset}
-
-#### Province
-
-```{r plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of students in BC of each grade level that successfully transition to the next grade between the years 1993 and 2020."}
-# Plot for province total
-data %>% 
-  filter(DATA_LEVEL == "Province Level") %>%
-  filter(PUBLIC_OR_INDEPENDENT == "Province - Total") %>%
-  filter(SUB_POPULATION == "All Students") %>%
-  filter(FACILITY_TYPE == "All Facility Types") %>%
-  ggplot(aes(x=year, y=rate, color=grade)) +
-  geom_line() +
-  xlab("Year") +
-  ylab("Percentage of BC Students who Transitioned to the Next Grade") +
-  labs(title="Rate of successful grade transitions (1993-2020)",
-       color="Student Grade Level") -> province_plot
-ggplotly(province_plot)
+```{r}
+#WORK IN PROGRESS
 ```
 
-#### Districts
+## Results
+
+```{r}
+#WORK IN PROGRESS
+```
+
+### General Overview {.tabset}
+
+#### Provincial Level
+
+```{r plot-prep1, echo=FALSE, message=FALSE, warning=FALSE}
+province_plot <- data_province %>%  # Code for the plot
+  plot_ly(x = ~year, 
+          y=~rate, 
+          type="scatter", 
+          mode="line",
+          customdata = ~SUB_POPULATION,
+          color=~grade, 
+          colors="Set2",
+          transforms=list(
+            list(
+              type = 'filter',
+              target = 'customdata',
+              operation = '=',
+              value = unique(data_province$SUB_POPULATION)[1]
+              )
+            )
+          ) %>% # The dropdown menu for SUBPOPULATION
+  layout(
+    title="Rate of successful grade transitions (1993-2020)",
+    yaxis = list(title = "% of BC Students who Transitioned to the Next Grade"),
+    xaxis=list(title="Year",
+               categoryorder = "array",
+              categoryarray = data_province$year),
+    legend = list(title=list(text='<b> Student Grade Level </b>')),
+    updatemenus = list(list(
+      type = 'dropdown',
+      active = 0,
+      buttons=list(
+        list(method = "restyle",
+               args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[1]),
+               label = unique(data_province$SUB_POPULATION)[1]),
+        list(method = "restyle",
+               args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[2]),
+               label = unique(data_province$SUB_POPULATION)[2]),
+        list(method = "restyle",
+               args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[3]),
+               label = unique(data_province$SUB_POPULATION)[3]),
+        list(method = "restyle",
+               args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[4]),
+               label = unique(data_province$SUB_POPULATION)[4]),
+        list(method = "restyle",
+               args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[5]),
+               label = unique(data_province$SUB_POPULATION)[5])
+      )
+    )
+  ))
+
+# Had a lot of trouble creating this plot, but this link helped:
+# https://stackoverflow.com/questions/52321695/filter-a-plotly-line-chart-based-on-categorical-variable
+```
+
+```{r plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of students in BC of each grade level that successfully transition to the next grade between the years 1993 and 2020."}
+province_plot
+```
+
+#### District Level
 
 ```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
 data_district %>% 
@@ -139,11 +196,8 @@ data_district %>%
 ggplotly(district_plot)
 ```
 
-## Results
+#### School Level
 
-```{r}
-#WORK IN PROGRESS
-```
 
 ## Conclusions and Summary
 
