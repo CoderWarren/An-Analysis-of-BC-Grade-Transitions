@@ -1,9 +1,9 @@
 ---
-title: "JSC370 Exploratory Data Analysis"
-output: 
-    html_document:
-        toc: TRUE
-        toc_float: TRUE
+title: "JSC370 Midterm Project"
+author: "Warren Zhu"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+link-citations: yes
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
@@ -16,6 +16,16 @@ library(tidyverse)
 library(ggplot2)
 library(mgcv)
 ```
+
+## Introduction
+
+Having grown up in British Columbia, I have decided to use [open data from British Columbia](https://catalogue.data.gov.bc.ca/). To be more specific, for this assignment I am using [1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). To gather information regarding the districts, I also used [information regarding each district's office, also published by the British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information).
+
+Our main question of interest for this project is: **How has the quality of education/opportunities (as measured by grade-to-grade transition) in the past 30 years differed in different kinds of schools, as well as different types of students (in BC)?**
+
+Note that although this is just one question, it is a very complex one, and we will soon see that a lot of thought (and coding/time) is required to answer it.
+
+DISCLAIMER: this report will not include unformatted output or dataset summaries. If you wish to see the code behind this report, you can access [the github repository for this project here](https://github.com/CoderWarren/Midterm).
 
 ## Methods
 

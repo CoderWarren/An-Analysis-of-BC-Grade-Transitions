@@ -5,11 +5,11 @@ navbar:
   left:
     - text: "Home"
       href: index.html
+    - text: "LinkedIn"
+      href: https://www.linkedin.com/in/warren-zhu/
+  right:
     - text: "About the Author"
       href: aboutWarren.html
-  right:
-    - text: "My LinkedIn Page (cus why not lol)"
-      href: https://www.linkedin.com/in/warren-zhu/
 output:
   html_document:
     theme: cosmo

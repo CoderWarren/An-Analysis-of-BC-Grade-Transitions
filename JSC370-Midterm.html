@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Warren Zhu" />
 
+<meta name="date" content="2022-04-14" />
 
-<title>JSC370 Exploratory Data Analysis</title>
+<title>JSC370 Midterm Project</title>
 
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,9 +30,6 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -235,69 +234,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -305,16 +241,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -327,7 +253,7 @@ div.tocify {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">JSC370 Final Project</a>
+      <a class="navbar-brand" href="index.html">An Analysis of BC Grade-to-Grade Transitions</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -335,12 +261,12 @@ div.tocify {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="aboutWarren.html">About the Author</a>
+  <a href="https://www.linkedin.com/in/warren-zhu/">LinkedIn</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://www.linkedin.com/in/warren-zhu/">My LinkedIn Page (cus why not lol)</a>
+  <a href="aboutWarren.html">About the Author</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -351,11 +277,20 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">JSC370 Exploratory Data Analysis</h1>
+<h1 class="title toc-ignore">JSC370 Midterm Project</h1>
+<h4 class="author">Warren Zhu</h4>
+<h4 class="date">14 April 2022</h4>
 
 </div>
 
 
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Having grown up in British Columbia, I have decided to use <a href="https://catalogue.data.gov.bc.ca/">open data from British Columbia</a>. To be more specific, for this assignment I am using <a href="https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition">1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics</a>. To gather information regarding the districts, I also used <a href="https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information">information regarding each district’s office, also published by the British Columbia Education Analytics</a>.</p>
+<p>Our main question of interest for this project is: <strong>How has the quality of education/opportunities (as measured by grade-to-grade transition) in the past 30 years differed in different kinds of schools, as well as different types of students (in BC)?</strong></p>
+<p>Note that although this is just one question, it is a very complex one, and we will soon see that a lot of thought (and coding/time) is required to answer it.</p>
+<p>DISCLAIMER: this report will not include unformatted output or dataset summaries. If you wish to see the code behind this report, you can access <a href="https://github.com/CoderWarren/Midterm">the github repository for this project here</a>.</p>
+</div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
 <p>Our data came in the form of 3 ‘.xlsx’ files containing information regarding BC grade-to-grade transitions on a provincial, district and school level, while the data regarding the location of the offices of each district was in the form of a ‘.csv’ file. The three ‘.xlsx’ files each contained information on different periods: one file contained information from 1992/93 to 2000/01, another contained information from 2000/01 to 2010/11, and our last one contained information from 2010/11 to 2020/21. There are many rows in each of the ‘.xlsx’ files (the first had 374654, the second had 541501, and the third had 536978), but it is also worth noting that the data was not tidy, as some rows recorded data on “all students” whilst other rows recorded data on “Indigenous students”, so each row should not be treated as its own observation.</p>
@@ -407,15 +342,15 @@ Figure 5: A boxplot depicting the percentage of grade 11 BC students from each d
 <p>A quick comparison between the two box plots shows that the variation of the transition rate for grade 11 BC students is dramatically higher than that of grade 10 BC students. Our second graph also shows us that from the variation in the rate of transitions from grade 11 to 12 from 2015 to 2020 has been significantly reduced (when compared with the past years). The median of the rates has also increased over time. As such, this plot suggests that there is more equality (due to the decrease in variation) in terms of education/opportunities across the districts, and the education/opportunities offered is of a higher quality (as indicated by the higher median).</p>
 <p>Let us now take a look at a map to get a rough idea of where each of these districts are. The first interactive map below illustrates the situation in 1993, whilst the second one illustrates the situation in 2020.</p>
 <div class="figure">
-<div id="htmlwidget-1c95a65134545610dd6e" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1c95a65134545610dd6e">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[49.5226133,49.51097505,50.2401509,50.98961564,49.09749644,50.25217477,49.87663283,52.134,52.98131582,49.1556137,49.052677,49.0909895,49.1702678,49.0860948,49.1630636,49.2633059,49.2488564,49.22217271,49.25202042,49.329083,49.33419694,49.40122428,49.8337383,49.6959392,53.25524836,49.0313345,54.31728952,49.1821197,54.7893186,53.8898068,50.1087423,55.7439377,56.2513037,48.4533204,48.43650553,48.5641791,48.8544831,49.4928328,49.16104077,49.3178777,49.2538928,49.6871494,50.0034022,50.6655997,50.7316163,49.1369259,49.37765346,48.7859504,58.8065575,54.517189,50.69785939,50.7186714,54.01803356,55.2046696],[-115.7608032,-117.2897037,-117.8054872,-118.1992192,-117.6936988,-119.2499542,-119.399225,-122.146,-122.466948,-121.9454115,-122.3316427,-122.608775,-122.8323789,-123.0645526,-123.1395169,-123.1402601,-122.9869878,-122.605599,-122.8471631,-123.0726542,-123.1684742,-123.5082879,-124.5154343,-123.1567479,-132.0774057,-118.4481822,-130.3107496,-119.5531165,-127.1816649,-122.7654554,-120.7946731,-120.2205288,-120.8498782,-123.3784931,-123.5132394,-123.4121269,-123.5010094,-119.5833265,-123.9620771,-124.3118084,-124.802165,-125.0011887,-125.2437338,-120.3187753,-121.266347,-122.3084805,-121.4292834,-123.6974301,-122.6981018,-128.6122867,-119.2860882,-127.4942432,-124.0075833,-129.0794026],10000,null,null,{"interactive":true,"className":"","stroke":true,"color":["#D600A0","#DB0096","#F00059","#AC1CE3","#E10087","#D9009B","#CA0AB8","#C012C9","#D7009E","#BA15D1","#EA006E","#9F1FF0","#C80BBB","#EE0060","#EC0069","#C310C4","#E80073","#D601A2","#EF005D","#EB006C","#EF005C","#9D1FF1","#E5007D","#F10056","#DB0097","#E70077","#D9009A","#F4004B","#D9009A","#D402A5","#0000FF","#DA0098","#A41EEB","#720EF7","#DD0092","#A020F0","#9E1FF0","#D303A7","#E40080","#CC09B5","#D302A7","#DD0090","#EB006B","#E90071","#B617D7","#E10087","#C80CBC","#E20085","#9D1FF1","#CF05AE","#DF008D","#C60EC0","#7810F7","#B518D8"],"weight":5,"opacity":1,"fill":true,"fillColor":["#D600A0","#DB0096","#F00059","#AC1CE3","#E10087","#D9009B","#CA0AB8","#C012C9","#D7009E","#BA15D1","#EA006E","#9F1FF0","#C80BBB","#EE0060","#EC0069","#C310C4","#E80073","#D601A2","#EF005D","#EB006C","#EF005C","#9D1FF1","#E5007D","#F10056","#DB0097","#E70077","#D9009A","#F4004B","#D9009A","#D402A5","#0000FF","#DA0098","#A41EEB","#720EF7","#DD0092","#A020F0","#9E1FF0","#D303A7","#E40080","#CC09B5","#D302A7","#DD0090","#EB006B","#E90071","#B617D7","#E10087","#C80CBC","#E20085","#9D1FF1","#CF05AE","#DF008D","#C60EC0","#7810F7","#B518D8"],"fillOpacity":1},null,null,["78.6 Grade 11 to 12 Transition Rate","80.2 Grade 11 to 12 Transition Rate","89.6 Grade 11 to 12 Transition Rate","68.7 Grade 11 to 12 Transition Rate","82.5 Grade 11 to 12 Transition Rate","79.4 Grade 11 to 12 Transition Rate","75.1 Grade 11 to 12 Transition Rate","72.5 Grade 11 to 12 Transition Rate","78.9 Grade 11 to 12 Transition Rate","71.4 Grade 11 to 12 Transition Rate","86.3 Grade 11 to 12 Transition Rate","66.3 Grade 11 to 12 Transition Rate","74.6 Grade 11 to 12 Transition Rate","88.5 Grade 11 to 12 Transition Rate","87.1 Grade 11 to 12 Transition Rate","73.2 Grade 11 to 12 Transition Rate","85.5 Grade 11 to 12 Transition Rate","78.3 Grade 11 to 12 Transition Rate","88.9 Grade 11 to 12 Transition Rate","86.6 Grade 11 to 12 Transition Rate","89.1 Grade 11 to 12 Transition Rate","65.6 Grade 11 to 12 Transition Rate","84 Grade 11 to 12 Transition Rate","90 Grade 11 to 12 Transition Rate","80 Grade 11 to 12 Transition Rate","84.9 Grade 11 to 12 Transition Rate","79.5 Grade 11 to 12 Transition Rate","91.7 Grade 11 to 12 Transition Rate","79.5 Grade 11 to 12 Transition Rate","77.9 Grade 11 to 12 Transition Rate","33.7 Grade 11 to 12 Transition Rate","79.8 Grade 11 to 12 Transition Rate","67.5 Grade 11 to 12 Transition Rate","50.7 Grade 11 to 12 Transition Rate","80.8 Grade 11 to 12 Transition Rate","66.7 Grade 11 to 12 Transition Rate","66 Grade 11 to 12 Transition Rate","77.5 Grade 11 to 12 Transition Rate","83.5 Grade 11 to 12 Transition Rate","75.5 Grade 11 to 12 Transition Rate","77.6 Grade 11 to 12 Transition Rate","81 Grade 11 to 12 Transition Rate","86.7 Grade 11 to 12 Transition Rate","85.9 Grade 11 to 12 Transition Rate","70.5 Grade 11 to 12 Transition Rate","82.4 Grade 11 to 12 Transition Rate","74.4 Grade 11 to 12 Transition Rate","82.8 Grade 11 to 12 Transition Rate","65.7 Grade 11 to 12 Transition Rate","76.5 Grade 11 to 12 Transition Rate","81.5 Grade 11 to 12 Transition Rate","73.9 Grade 11 to 12 Transition Rate","52.5 Grade 11 to 12 Transition Rate","70.3 Grade 11 to 12 Transition Rate"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addLegend","args":[{"colors":["#0000FF , #4503FC 10.8620689655172%, #700DF8 28.1034482758621%, #8E18F3 45.3448275862069%, #B318DA 62.5862068965517%, #DB0097 79.8275862068966%, #F10056 97.0689655172414%, #F4004B "],"labels":["40","50","60","70","80","90"],"na_color":null,"na_label":null,"opacity":1,"position":"bottomleft","type":"numeric","title":"Grade 11 to 12 Transition Rate (%)","extra":{"p_1":0.108620689655172,"p_n":0.970689655172414},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[48.43650553,58.8065575],"lng":[-132.0774057,-115.7608032]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-7378c98fc34a6e5b84d1" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7378c98fc34a6e5b84d1">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[49.5226133,49.51097505,50.2401509,50.98961564,49.09749644,50.25217477,49.87663283,52.134,52.98131582,49.1556137,49.052677,49.0909895,49.1702678,49.0860948,49.1630636,49.2633059,49.2488564,49.22217271,49.25202042,49.329083,49.33419694,49.40122428,49.8337383,49.6959392,53.25524836,49.0313345,54.31728952,49.1821197,54.7893186,53.8898068,50.1087423,55.7439377,56.2513037,48.4533204,48.43650553,48.5641791,48.8544831,49.4928328,49.16104077,49.3178777,49.2538928,49.6871494,50.0034022,50.6655997,50.7316163,49.1369259,49.37765346,48.7859504,58.8065575,54.517189,50.69785939,50.7186714,54.01803356,55.2046696],[-115.7608032,-117.2897037,-117.8054872,-118.1992192,-117.6936988,-119.2499542,-119.399225,-122.146,-122.466948,-121.9454115,-122.3316427,-122.608775,-122.8323789,-123.0645526,-123.1395169,-123.1402601,-122.9869878,-122.605599,-122.8471631,-123.0726542,-123.1684742,-123.5082879,-124.5154343,-123.1567479,-132.0774057,-118.4481822,-130.3107496,-119.5531165,-127.1816649,-122.7654554,-120.7946731,-120.2205288,-120.8498782,-123.3784931,-123.5132394,-123.4121269,-123.5010094,-119.5833265,-123.9620771,-124.3118084,-124.802165,-125.0011887,-125.2437338,-120.3187753,-121.266347,-122.3084805,-121.4292834,-123.6974301,-122.6981018,-128.6122867,-119.2860882,-127.4942432,-124.0075833,-129.0794026],10000,null,null,{"interactive":true,"className":"","stroke":true,"color":["#D600A0","#DB0096","#F00059","#AC1CE3","#E10087","#D9009B","#CA0AB8","#C012C9","#D7009E","#BA15D1","#EA006E","#9F1FF0","#C80BBB","#EE0060","#EC0069","#C310C4","#E80073","#D601A2","#EF005D","#EB006C","#EF005C","#9D1FF1","#E5007D","#F10056","#DB0097","#E70077","#D9009A","#F4004B","#D9009A","#D402A5","#0000FF","#DA0098","#A41EEB","#720EF7","#DD0092","#A020F0","#9E1FF0","#D303A7","#E40080","#CC09B5","#D302A7","#DD0090","#EB006B","#E90071","#B617D7","#E10087","#C80CBC","#E20085","#9D1FF1","#CF05AE","#DF008D","#C60EC0","#7810F7","#B518D8"],"weight":5,"opacity":1,"fill":true,"fillColor":["#D600A0","#DB0096","#F00059","#AC1CE3","#E10087","#D9009B","#CA0AB8","#C012C9","#D7009E","#BA15D1","#EA006E","#9F1FF0","#C80BBB","#EE0060","#EC0069","#C310C4","#E80073","#D601A2","#EF005D","#EB006C","#EF005C","#9D1FF1","#E5007D","#F10056","#DB0097","#E70077","#D9009A","#F4004B","#D9009A","#D402A5","#0000FF","#DA0098","#A41EEB","#720EF7","#DD0092","#A020F0","#9E1FF0","#D303A7","#E40080","#CC09B5","#D302A7","#DD0090","#EB006B","#E90071","#B617D7","#E10087","#C80CBC","#E20085","#9D1FF1","#CF05AE","#DF008D","#C60EC0","#7810F7","#B518D8"],"fillOpacity":1},null,null,["78.6 Grade 11 to 12 Transition Rate","80.2 Grade 11 to 12 Transition Rate","89.6 Grade 11 to 12 Transition Rate","68.7 Grade 11 to 12 Transition Rate","82.5 Grade 11 to 12 Transition Rate","79.4 Grade 11 to 12 Transition Rate","75.1 Grade 11 to 12 Transition Rate","72.5 Grade 11 to 12 Transition Rate","78.9 Grade 11 to 12 Transition Rate","71.4 Grade 11 to 12 Transition Rate","86.3 Grade 11 to 12 Transition Rate","66.3 Grade 11 to 12 Transition Rate","74.6 Grade 11 to 12 Transition Rate","88.5 Grade 11 to 12 Transition Rate","87.1 Grade 11 to 12 Transition Rate","73.2 Grade 11 to 12 Transition Rate","85.5 Grade 11 to 12 Transition Rate","78.3 Grade 11 to 12 Transition Rate","88.9 Grade 11 to 12 Transition Rate","86.6 Grade 11 to 12 Transition Rate","89.1 Grade 11 to 12 Transition Rate","65.6 Grade 11 to 12 Transition Rate","84 Grade 11 to 12 Transition Rate","90 Grade 11 to 12 Transition Rate","80 Grade 11 to 12 Transition Rate","84.9 Grade 11 to 12 Transition Rate","79.5 Grade 11 to 12 Transition Rate","91.7 Grade 11 to 12 Transition Rate","79.5 Grade 11 to 12 Transition Rate","77.9 Grade 11 to 12 Transition Rate","33.7 Grade 11 to 12 Transition Rate","79.8 Grade 11 to 12 Transition Rate","67.5 Grade 11 to 12 Transition Rate","50.7 Grade 11 to 12 Transition Rate","80.8 Grade 11 to 12 Transition Rate","66.7 Grade 11 to 12 Transition Rate","66 Grade 11 to 12 Transition Rate","77.5 Grade 11 to 12 Transition Rate","83.5 Grade 11 to 12 Transition Rate","75.5 Grade 11 to 12 Transition Rate","77.6 Grade 11 to 12 Transition Rate","81 Grade 11 to 12 Transition Rate","86.7 Grade 11 to 12 Transition Rate","85.9 Grade 11 to 12 Transition Rate","70.5 Grade 11 to 12 Transition Rate","82.4 Grade 11 to 12 Transition Rate","74.4 Grade 11 to 12 Transition Rate","82.8 Grade 11 to 12 Transition Rate","65.7 Grade 11 to 12 Transition Rate","76.5 Grade 11 to 12 Transition Rate","81.5 Grade 11 to 12 Transition Rate","73.9 Grade 11 to 12 Transition Rate","52.5 Grade 11 to 12 Transition Rate","70.3 Grade 11 to 12 Transition Rate"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addLegend","args":[{"colors":["#0000FF , #4503FC 10.8620689655172%, #700DF8 28.1034482758621%, #8E18F3 45.3448275862069%, #B318DA 62.5862068965517%, #DB0097 79.8275862068966%, #F10056 97.0689655172414%, #F4004B "],"labels":["40","50","60","70","80","90"],"na_color":null,"na_label":null,"opacity":1,"position":"bottomleft","type":"numeric","title":"Grade 11 to 12 Transition Rate (%)","extra":{"p_1":0.108620689655172,"p_n":0.970689655172414},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[48.43650553,58.8065575],"lng":[-132.0774057,-115.7608032]}},"evals":[],"jsHooks":[]}</script>
 <p class="caption">
 Figure 6: Interative map displaying the location of the board offices for each district. The color of the points is based on the rate of successful transitions from Grade 11 to 12 in 1993.
 </p>
 </div>
 <div class="figure">
-<div id="htmlwidget-9736e6d13319bc523c3b" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-9736e6d13319bc523c3b">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[49.5226133,50.5107574,49.51097505,50.2401509,50.98961564,49.09749644,50.25217477,49.87663283,52.134,52.98131582,49.1556137,49.052677,49.0909895,49.1702678,49.0860948,49.1630636,49.2633059,49.20395816,49.2488564,49.22217271,49.25202042,49.329083,49.33419694,49.40122428,49.8337383,49.6959392,53.25524836,49.0313345,54.31728952,49.1821197,54.7893186,53.8898068,50.1087423,55.7439377,56.2513037,48.4533204,48.43650553,48.5641791,48.8544831,49.4928328,49.16104077,49.3178777,49.2538928,49.6871494,50.0034022,50.6655997,50.7316163,49.1369259,49.37765346,48.7859504,58.8065575,54.517189,50.69785939,49.78300499,50.7186714,54.01803356,49.173452],[-115.7608032,-116.0278169,-117.2897037,-117.8054872,-118.1992192,-117.6936988,-119.2499542,-119.399225,-122.146,-122.466948,-121.9454115,-122.3316427,-122.608775,-122.8323789,-123.0645526,-123.1395169,-123.1402601,-122.9158454,-122.9869878,-122.605599,-122.8471631,-123.0726542,-123.1684742,-123.5082879,-124.5154343,-123.1567479,-132.0774057,-118.4481822,-130.3107496,-119.5531165,-127.1816649,-122.7654554,-120.7946731,-120.2205288,-120.8498782,-123.3784931,-123.5132394,-123.4121269,-123.5010094,-119.5833265,-123.9620771,-124.3118084,-124.802165,-125.0011887,-125.2437338,-120.3187753,-121.266347,-122.3084805,-121.4292834,-123.6974301,-122.6981018,-128.6122867,-119.2860882,-126.0512108,-127.4942432,-124.0075833,-123.0725451],10000,null,null,{"interactive":true,"className":"","stroke":true,"color":["#F7003E","#F90032","#F50045","#FF0000","#FA002D","#FA002C","#F7003C","#FC0024","#E20086","#FA002D","#F40049","#F10055","#F90035","#F90033","#FE0011","#FB0025","#FB0029","#ED0064","#FB0027","#F8003A","#FC0020","#FD0019","#FC0020","#F0005B","#F7003F","#FB0025","#EF005C","#F6003F","#CA0BB9","#F80036","#E80074","#ED0065","#CB09B6","#E20084","#E40081","#FA002B","#F4004A","#FA002D","#FB0028","#F80038","#F80037","#FB0028","#FC0024","#F00059","#F7003D","#F60041","#EC0067","#EF005E","#C40FC2","#FA002D","#EE0060","#E20085","#F90034","#921AF3","#E4007F","#EC0067","#FC0024"],"weight":5,"opacity":1,"fill":true,"fillColor":["#F7003E","#F90032","#F50045","#FF0000","#FA002D","#FA002C","#F7003C","#FC0024","#E20086","#FA002D","#F40049","#F10055","#F90035","#F90033","#FE0011","#FB0025","#FB0029","#ED0064","#FB0027","#F8003A","#FC0020","#FD0019","#FC0020","#F0005B","#F7003F","#FB0025","#EF005C","#F6003F","#CA0BB9","#F80036","#E80074","#ED0065","#CB09B6","#E20084","#E40081","#FA002B","#F4004A","#FA002D","#FB0028","#F80038","#F80037","#FB0028","#FC0024","#F00059","#F7003D","#F60041","#EC0067","#EF005E","#C40FC2","#FA002D","#EE0060","#E20085","#F90034","#921AF3","#E4007F","#EC0067","#FC0024"],"fillOpacity":1},null,null,["93.6 Grade 11 to 12 Transition Rate","95.3 Grade 11 to 12 Transition Rate","92.6 Grade 11 to 12 Transition Rate","100 Grade 11 to 12 Transition Rate","95.9 Grade 11 to 12 Transition Rate","96.1 Grade 11 to 12 Transition Rate","93.9 Grade 11 to 12 Transition Rate","97.1 Grade 11 to 12 Transition Rate","82.6 Grade 11 to 12 Transition Rate","95.9 Grade 11 to 12 Transition Rate","92 Grade 11 to 12 Transition Rate","90.1 Grade 11 to 12 Transition Rate","94.9 Grade 11 to 12 Transition Rate","95.2 Grade 11 to 12 Transition Rate","98.9 Grade 11 to 12 Transition Rate","96.9 Grade 11 to 12 Transition Rate","96.5 Grade 11 to 12 Transition Rate","87.8 Grade 11 to 12 Transition Rate","96.7 Grade 11 to 12 Transition Rate","94.2 Grade 11 to 12 Transition Rate","97.5 Grade 11 to 12 Transition Rate","98.2 Grade 11 to 12 Transition Rate","97.5 Grade 11 to 12 Transition Rate","89.2 Grade 11 to 12 Transition Rate","93.5 Grade 11 to 12 Transition Rate","96.9 Grade 11 to 12 Transition Rate","89.1 Grade 11 to 12 Transition Rate","93.4 Grade 11 to 12 Transition Rate","74.9 Grade 11 to 12 Transition Rate","94.7 Grade 11 to 12 Transition Rate","85.4 Grade 11 to 12 Transition Rate","87.7 Grade 11 to 12 Transition Rate","75.3 Grade 11 to 12 Transition Rate","82.9 Grade 11 to 12 Transition Rate","83.4 Grade 11 to 12 Transition Rate","96.2 Grade 11 to 12 Transition Rate","91.8 Grade 11 to 12 Transition Rate","96 Grade 11 to 12 Transition Rate","96.6 Grade 11 to 12 Transition Rate","94.4 Grade 11 to 12 Transition Rate","94.6 Grade 11 to 12 Transition Rate","96.6 Grade 11 to 12 Transition Rate","97.1 Grade 11 to 12 Transition Rate","89.6 Grade 11 to 12 Transition Rate","93.8 Grade 11 to 12 Transition Rate","93.2 Grade 11 to 12 Transition Rate","87.3 Grade 11 to 12 Transition Rate","88.8 Grade 11 to 12 Transition Rate","73.6 Grade 11 to 12 Transition Rate","96 Grade 11 to 12 Transition Rate","88.5 Grade 11 to 12 Transition Rate","82.8 Grade 11 to 12 Transition Rate","95 Grade 11 to 12 Transition Rate","61.4 Grade 11 to 12 Transition Rate","83.7 Grade 11 to 12 Transition Rate","87.4 Grade 11 to 12 Transition Rate","97.1 Grade 11 to 12 Transition Rate"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addLegend","args":[{"colors":["#921AF3 , #9B1EF1 9.32642487046633%, #B318DA 22.279792746114%, #CA0AB8 35.2331606217617%, #DB0097 48.1865284974093%, #E70076 61.139896373057%, #F10056 74.0932642487047%, #F90034 87.0466321243523%, #FF0000 100%, #FF0000 "],"labels":["65","70","75","80","85","90","95","100"],"na_color":null,"na_label":null,"opacity":1,"position":"bottomleft","type":"numeric","title":"Grade 11 to 12 Transition Rate (%)","extra":{"p_1":0.0932642487046633,"p_n":1},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[48.43650553,58.8065575],"lng":[-132.0774057,-115.7608032]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-67f3767bc003099b11a1" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-67f3767bc003099b11a1">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenStreetMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[49.5226133,50.5107574,49.51097505,50.2401509,50.98961564,49.09749644,50.25217477,49.87663283,52.134,52.98131582,49.1556137,49.052677,49.0909895,49.1702678,49.0860948,49.1630636,49.2633059,49.20395816,49.2488564,49.22217271,49.25202042,49.329083,49.33419694,49.40122428,49.8337383,49.6959392,53.25524836,49.0313345,54.31728952,49.1821197,54.7893186,53.8898068,50.1087423,55.7439377,56.2513037,48.4533204,48.43650553,48.5641791,48.8544831,49.4928328,49.16104077,49.3178777,49.2538928,49.6871494,50.0034022,50.6655997,50.7316163,49.1369259,49.37765346,48.7859504,58.8065575,54.517189,50.69785939,49.78300499,50.7186714,54.01803356,49.173452],[-115.7608032,-116.0278169,-117.2897037,-117.8054872,-118.1992192,-117.6936988,-119.2499542,-119.399225,-122.146,-122.466948,-121.9454115,-122.3316427,-122.608775,-122.8323789,-123.0645526,-123.1395169,-123.1402601,-122.9158454,-122.9869878,-122.605599,-122.8471631,-123.0726542,-123.1684742,-123.5082879,-124.5154343,-123.1567479,-132.0774057,-118.4481822,-130.3107496,-119.5531165,-127.1816649,-122.7654554,-120.7946731,-120.2205288,-120.8498782,-123.3784931,-123.5132394,-123.4121269,-123.5010094,-119.5833265,-123.9620771,-124.3118084,-124.802165,-125.0011887,-125.2437338,-120.3187753,-121.266347,-122.3084805,-121.4292834,-123.6974301,-122.6981018,-128.6122867,-119.2860882,-126.0512108,-127.4942432,-124.0075833,-123.0725451],10000,null,null,{"interactive":true,"className":"","stroke":true,"color":["#F7003E","#F90032","#F50045","#FF0000","#FA002D","#FA002C","#F7003C","#FC0024","#E20086","#FA002D","#F40049","#F10055","#F90035","#F90033","#FE0011","#FB0025","#FB0029","#ED0064","#FB0027","#F8003A","#FC0020","#FD0019","#FC0020","#F0005B","#F7003F","#FB0025","#EF005C","#F6003F","#CA0BB9","#F80036","#E80074","#ED0065","#CB09B6","#E20084","#E40081","#FA002B","#F4004A","#FA002D","#FB0028","#F80038","#F80037","#FB0028","#FC0024","#F00059","#F7003D","#F60041","#EC0067","#EF005E","#C40FC2","#FA002D","#EE0060","#E20085","#F90034","#921AF3","#E4007F","#EC0067","#FC0024"],"weight":5,"opacity":1,"fill":true,"fillColor":["#F7003E","#F90032","#F50045","#FF0000","#FA002D","#FA002C","#F7003C","#FC0024","#E20086","#FA002D","#F40049","#F10055","#F90035","#F90033","#FE0011","#FB0025","#FB0029","#ED0064","#FB0027","#F8003A","#FC0020","#FD0019","#FC0020","#F0005B","#F7003F","#FB0025","#EF005C","#F6003F","#CA0BB9","#F80036","#E80074","#ED0065","#CB09B6","#E20084","#E40081","#FA002B","#F4004A","#FA002D","#FB0028","#F80038","#F80037","#FB0028","#FC0024","#F00059","#F7003D","#F60041","#EC0067","#EF005E","#C40FC2","#FA002D","#EE0060","#E20085","#F90034","#921AF3","#E4007F","#EC0067","#FC0024"],"fillOpacity":1},null,null,["93.6 Grade 11 to 12 Transition Rate","95.3 Grade 11 to 12 Transition Rate","92.6 Grade 11 to 12 Transition Rate","100 Grade 11 to 12 Transition Rate","95.9 Grade 11 to 12 Transition Rate","96.1 Grade 11 to 12 Transition Rate","93.9 Grade 11 to 12 Transition Rate","97.1 Grade 11 to 12 Transition Rate","82.6 Grade 11 to 12 Transition Rate","95.9 Grade 11 to 12 Transition Rate","92 Grade 11 to 12 Transition Rate","90.1 Grade 11 to 12 Transition Rate","94.9 Grade 11 to 12 Transition Rate","95.2 Grade 11 to 12 Transition Rate","98.9 Grade 11 to 12 Transition Rate","96.9 Grade 11 to 12 Transition Rate","96.5 Grade 11 to 12 Transition Rate","87.8 Grade 11 to 12 Transition Rate","96.7 Grade 11 to 12 Transition Rate","94.2 Grade 11 to 12 Transition Rate","97.5 Grade 11 to 12 Transition Rate","98.2 Grade 11 to 12 Transition Rate","97.5 Grade 11 to 12 Transition Rate","89.2 Grade 11 to 12 Transition Rate","93.5 Grade 11 to 12 Transition Rate","96.9 Grade 11 to 12 Transition Rate","89.1 Grade 11 to 12 Transition Rate","93.4 Grade 11 to 12 Transition Rate","74.9 Grade 11 to 12 Transition Rate","94.7 Grade 11 to 12 Transition Rate","85.4 Grade 11 to 12 Transition Rate","87.7 Grade 11 to 12 Transition Rate","75.3 Grade 11 to 12 Transition Rate","82.9 Grade 11 to 12 Transition Rate","83.4 Grade 11 to 12 Transition Rate","96.2 Grade 11 to 12 Transition Rate","91.8 Grade 11 to 12 Transition Rate","96 Grade 11 to 12 Transition Rate","96.6 Grade 11 to 12 Transition Rate","94.4 Grade 11 to 12 Transition Rate","94.6 Grade 11 to 12 Transition Rate","96.6 Grade 11 to 12 Transition Rate","97.1 Grade 11 to 12 Transition Rate","89.6 Grade 11 to 12 Transition Rate","93.8 Grade 11 to 12 Transition Rate","93.2 Grade 11 to 12 Transition Rate","87.3 Grade 11 to 12 Transition Rate","88.8 Grade 11 to 12 Transition Rate","73.6 Grade 11 to 12 Transition Rate","96 Grade 11 to 12 Transition Rate","88.5 Grade 11 to 12 Transition Rate","82.8 Grade 11 to 12 Transition Rate","95 Grade 11 to 12 Transition Rate","61.4 Grade 11 to 12 Transition Rate","83.7 Grade 11 to 12 Transition Rate","87.4 Grade 11 to 12 Transition Rate","97.1 Grade 11 to 12 Transition Rate"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]},{"method":"addLegend","args":[{"colors":["#921AF3 , #9B1EF1 9.32642487046633%, #B318DA 22.279792746114%, #CA0AB8 35.2331606217617%, #DB0097 48.1865284974093%, #E70076 61.139896373057%, #F10056 74.0932642487047%, #F90034 87.0466321243523%, #FF0000 100%, #FF0000 "],"labels":["65","70","75","80","85","90","95","100"],"na_color":null,"na_label":null,"opacity":1,"position":"bottomleft","type":"numeric","title":"Grade 11 to 12 Transition Rate (%)","extra":{"p_1":0.0932642487046633,"p_n":1},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[48.43650553,58.8065575],"lng":[-132.0774057,-115.7608032]}},"evals":[],"jsHooks":[]}</script>
 <p class="caption">
 Figure 7: Interative map displaying the location of the board offices for each district. The color of the points is based on the rate of successful transitions from Grade 11 to 12 in 2020.
 </p>
@@ -564,8 +499,6 @@ Figure 9: A graph displaying the percentage of BC grade 11 students that success
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -598,35 +531,6 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

@@ -16,6 +16,10 @@ library(leaflet)
 library(tidyverse)
 library(ggplot2)
 library(mgcv)
+
+library(plotly)
+library(knitr)
+library(widgetframe)
 ```
 
 ```{r read-in, echo=FALSE, message=FALSE, warning=FALSE}
@@ -29,6 +33,62 @@ data_3 <- read_excel("data_transitions/grtogrtransition_2011-12_to_2020-21.xlsx"
 locations <- data.table::fread("data_districts/current_district_office_information.csv")
 ```
 
+```{r data-prep-1, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Here, we prepare the merged data set
+
+# Combine all the data
+data <- rbind(data_1, data_2, data_3)
+
+# Remove all missing values
+data <- data[!(data$DENOMINATOR_STUDIED_COHORT=="Msk"|
+                 data$NUMERATOR_NUM_SUCCESSFUL=="Msk"|
+               data$G2G_TRANSITION_RATE=="Msk"),]
+
+# Make an integer variable storing the year
+data$year <- strtoi(substr(data$SCHOOL_YEAR, 1, 4))
+
+# Make the grade to grade transition rates a float
+data$rate <- as.double(data$G2G_TRANSITION_RATE)
+
+# Make the number of students an integer
+data$num_students <- as.integer(data$DENOMINATOR_STUDIED_COHORT)
+
+# Make the number of students who successfully moved on an integer
+data$num_successful <- as.integer(data$NUMERATOR_NUM_SUCCESSFUL)
+
+# Make the student grade a factor
+data$grade <- as.factor(data$STUDENT_GRADE)
+
+# Drop the unnecessary columns
+data <- subset(data, select=-c(BASE_YEAR, SCHOOL_YEAR, G2G_TRANSITION_RATE,
+                               MEASURE_NAME, DENOMINATOR_STUDIED_COHORT,
+                               NUMERATOR_NUM_SUCCESSFUL, STUDENT_GRADE,
+                               DISTRICT_NAME))
+```
+
+```{r data-prep-2, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Drop all the rows in our table regarding data on a "Province Level"
+# This is because we will not use it for the remainder of the assignment
+data_district <- data[!(data$DATA_LEVEL=="Province Level"),]
+data_district$district <- as.integer(data_district$DISTRICT_NUMBER)
+
+# Now that we're on a district level, we can use the location data
+data_district <- left_join(x=data_district, y=locations, 
+                           by=c("district" = "DISTRICT_NUMBER"))
+
+# Drop columns that aren't used
+data_district <- subset(data_district, select=-c(
+  DISTRICT_PROVINCE, DISTRICT_POSTAL_CODE, 
+  DISTRICT_PHONE_NUMBER, DISTRICT_WEBSITE))
+
+# Turn our district into a factor variable
+data_district$district <- as.factor(data_district$district)
+
+# Check what we have
+summary(data_district)
+```
+
+
 ## Introduction
 
 This site was created with the intention of answering the following question: 
@@ -41,7 +101,43 @@ If you wish to see the Github repository for this site, [you can find it here](h
 
 ## Methods
 
+### Figure 1: {.tabset}
 
+#### Province
+
+```{r plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of students in BC of each grade level that successfully transition to the next grade between the years 1993 and 2020."}
+# Plot for province total
+data %>% 
+  filter(DATA_LEVEL == "Province Level") %>%
+  filter(PUBLIC_OR_INDEPENDENT == "Province - Total") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  ggplot(aes(x=year, y=rate, color=grade)) +
+  geom_line() +
+  xlab("Year") +
+  ylab("Percentage of BC Students who Transitioned to the Next Grade") +
+  labs(title="Rate of successful grade transitions (1993-2020)",
+       color="Student Grade Level") -> province_plot
+ggplotly(province_plot)
+```
+
+#### Districts
+
+```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
+data_district %>% 
+  filter(DATA_LEVEL == "District Level") %>%
+  filter(SUB_POPULATION == "All Students") %>%
+  filter(FACILITY_TYPE == "All Facility Types") %>%
+  filter(grade==8|grade==9|grade==10|grade==11) %>% #It's factored, can't use ">="
+  ggplot(aes(x=year, y=rate, color=district)) +
+  geom_line() +
+  facet_wrap(~grade) +
+  xlab("Year") +
+  ylab("Percentage of Students who Transitioned to the Next Grade") +
+  labs(title="Rate of grade transitions for BC Students (1993-2020)",
+       color="School District") -> district_plot
+ggplotly(district_plot)
+```
 
 ## Results
 
