@@ -69,7 +69,6 @@ data <- subset(data, select=-c(BASE_YEAR, SCHOOL_YEAR, G2G_TRANSITION_RATE,
 ```{r data-prep-2, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
 data %>% 
   filter(DATA_LEVEL == "Province Level") %>%
-  filter(PUBLIC_OR_INDEPENDENT == "Province - Total") %>%
   filter(FACILITY_TYPE == "All Facility Types") -> data_province
 ```
 
@@ -129,6 +128,7 @@ province_plot <- data_province %>%  # Code for the plot
           type="scatter", 
           mode="line",
           customdata = ~SUB_POPULATION,
+          ids = ~PUBLIC_OR_INDEPENDENT,
           color=~grade, 
           colors="Set2",
           transforms=list(
@@ -137,37 +137,62 @@ province_plot <- data_province %>%  # Code for the plot
               target = 'customdata',
               operation = '=',
               value = unique(data_province$SUB_POPULATION)[1]
+              ),
+            list(
+              type = 'filter',
+              target = 'ids',
+              operation = '=',
+              value = unique(data_province$PUBLIC_OR_INDEPENDENT)[1]
               )
             )
           ) %>% # The dropdown menu for SUBPOPULATION
   layout(
     title="Rate of successful grade transitions (1993-2020)",
-    yaxis = list(title = "% of BC Students who Transitioned to the Next Grade"),
+    yaxis = list(title = "% of Students who Transitioned to the Next Grade",
+                 range = c(40,100)),
     xaxis=list(title="Year",
                categoryorder = "array",
               categoryarray = data_province$year),
     legend = list(title=list(text='<b> Student Grade Level </b>')),
-    updatemenus = list(list(
-      type = 'dropdown',
-      active = 0,
-      buttons=list(
-        list(method = "restyle",
+    updatemenus = list(
+      list(
+        y = 1.1,
+        type = 'dropdown',
+        active = 0,
+        buttons=list(
+          list(method = "restyle",
                args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[1]),
                label = unique(data_province$SUB_POPULATION)[1]),
-        list(method = "restyle",
+          list(method = "restyle",
                args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[2]),
                label = unique(data_province$SUB_POPULATION)[2]),
-        list(method = "restyle",
+          list(method = "restyle",
                args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[3]),
                label = unique(data_province$SUB_POPULATION)[3]),
-        list(method = "restyle",
+          list(method = "restyle",
                args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[4]),
                label = unique(data_province$SUB_POPULATION)[4]),
-        list(method = "restyle",
+          list(method = "restyle",
                args = list("transforms[0].value", unique(data_province$SUB_POPULATION)[5]),
                label = unique(data_province$SUB_POPULATION)[5])
-      )
-    )
+          )
+        ),
+      list(
+        y = 1,
+        type = 'dropdown',
+        active = 0,
+        buttons=list(
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_province$PUBLIC_OR_INDEPENDENT)[1]),
+               label = unique(data_province$PUBLIC_OR_INDEPENDENT)[1]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_province$PUBLIC_OR_INDEPENDENT)[2]),
+               label = unique(data_province$PUBLIC_OR_INDEPENDENT)[2]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_province$PUBLIC_OR_INDEPENDENT)[3]),
+               label = unique(data_province$PUBLIC_OR_INDEPENDENT)[3])
+          )
+        )
   ))
 
 # Had a lot of trouble creating this plot, but this link helped:
@@ -179,6 +204,68 @@ province_plot
 ```
 
 #### District Level
+
+```{r plot-prep2, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+district_plot <- data_district %>%  # Code for the plot
+  plot_ly(x = ~year, 
+          y=~rate, 
+          type="scatter", 
+          mode="line",
+          customdata = ~SUB_POPULATION,
+          color=district, 
+          colors="Set2",
+          transforms=list(
+            list(
+              type = 'filter',
+              target = 'customdata',
+              operation = '=',
+              value = unique(data_district$SUB_POPULATION)[1]
+              ),
+            )
+          ) %>% # The dropdown menu for SUBPOPULATION
+  layout(
+    title="Rate of successful grade transitions (1993-2020)",
+    yaxis = list(title = "% of BC Students who Transitioned to the Next Grade"),
+    xaxis=list(title="Year",
+               categoryorder = "array",
+              categoryarray = data_province$year),
+    legend = list(title=list(text='<b> Student Grade Level </b>')),
+    updatemenus = list(
+      list(
+        type = 'dropdown',
+        active = 0,
+        buttons=list(
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[1]),
+               label = unique(data_district$SUB_POPULATION)[1]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[2]),
+               label = unique(data_district$SUB_POPULATION)[2]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[3]),
+               label = unique(data_district$SUB_POPULATION)[3]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[4]),
+               label = unique(data_district$SUB_POPULATION)[4]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[5]),
+               label = unique(data_district$SUB_POPULATION)[5])
+      )
+    )
+  ))
+
+# Had a lot of trouble creating this plot, but this link helped:
+# https://stackoverflow.com/questions/52321695/filter-a-plotly-line-chart-based-on-categorical-variable
+```
+
+
+
+
+
+
+
+
+
 
 ```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
 data_district %>% 
@@ -197,7 +284,6 @@ ggplotly(district_plot)
 ```
 
 #### School Level
-
 
 ## Conclusions and Summary
 
