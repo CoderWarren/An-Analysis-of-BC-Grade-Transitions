@@ -1,0 +1,7 @@
+This website will also be used for the final project. The figures are under the "Results" category. When this assignment was "submitted" (i.e., this file was uploaded), there were only 3 interactive figures, but as the site is constantly being updated, there will likely be more than 3 interactive figures in the near future (possibly when this assignment is being marked). The figures will be found in various tabs under the "Results" ("General Overview") Section.
+
+REPO LINK:
+https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions
+
+SITE LINK:
+https://coderwarren.github.io/An-Analysis-of-BC-Grade-Transitions/

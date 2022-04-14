@@ -431,7 +431,7 @@ district_plot_2 <- data_district %>%
   ))
 ```
 
-```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2: An interactive graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
+```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3: An interactive boxplot depicting the percentage of grade 10 BC students from each district that successfully transitioned to the next grade between the years 1993 and 2020."}
 district_plot_2
 ```
 
