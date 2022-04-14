@@ -156,7 +156,8 @@ province_plot <- data_province %>%  # Code for the plot
     legend = list(title=list(text='<b> Student Grade Level </b>')),
     updatemenus = list(
       list(
-        y = 1.1,
+        x=1.4,
+        y = 0.4,
         type = 'dropdown',
         active = 0,
         buttons=list(
@@ -178,7 +179,8 @@ province_plot <- data_province %>%  # Code for the plot
           )
         ),
       list(
-        y = 1,
+        x=1.4,
+        y = 0.45,
         type = 'dropdown',
         active = 0,
         buttons=list(
