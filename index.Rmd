@@ -131,6 +131,10 @@ province_plot <- data_province %>%  # Code for the plot
           ids = ~PUBLIC_OR_INDEPENDENT,
           color=~grade, 
           colors="Set2",
+          hoverinfo = 'text',
+          text = ~paste('</br> Year: ', year,
+                        '</br> Grade: ', grade,
+                      '</br> Rate: ', rate),
           transforms=list(
             list(
               type = 'filter',
