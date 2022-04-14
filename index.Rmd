@@ -94,6 +94,12 @@ data_district$district <- as.factor(data_district$district)
 summary(data_district)
 ```
 
+```{r data-prep-4, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+data_school <- data %>% filter(DATA_LEVEL == "School Level")
+data_school$district <- as.integer(data_school$DISTRICT_NUMBER)
+data_school$year <- as.factor(data_school$year)
+```
+
 
 ## Introduction
 
@@ -207,14 +213,14 @@ province_plot <- data_province %>%  # Code for the plot
 # https://stackoverflow.com/questions/52321695/filter-a-plotly-line-chart-based-on-categorical-variable
 ```
 
-```{r plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of students in BC of each grade level that successfully transition to the next grade between the years 1993 and 2020."}
+```{r plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 1: An interactive graph depicting the percentage of students in BC of each grade level that successfully transition to the next grade between the years 1993 and 2020."}
 province_plot
 ```
 
 #### District Level
 
 ```{r plot-prep2, echo=FALSE, message=FALSE, warning=FALSE}
-district_plot <- data_district %>%  # Code for the plot
+district_plot_1 <- data_district %>%  # Code for the plot
   plot_ly(x = ~year, 
           y=~rate, 
           type="scatter", 
@@ -320,11 +326,121 @@ district_plot <- data_district %>%  # Code for the plot
   ))
 ```
 
-```{r plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="A graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
-district_plot
+```{r plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2: An interactive graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
+district_plot_1
 ```
 
+```{r plot-prep3, echo=FALSE, message=FALSE, warning=FALSE}
+data_district$year <- as.factor(data_district$year)
+district_plot_2 <- data_district %>%
+  plot_ly(
+    y=~rate,
+    color=~year,
+    type="box",
+    customdata=~SUB_POPULATION,
+    ids=~grade,
+    transforms=list(
+      list(
+        type = 'filter',
+        target = 'customdata',
+        operation = '=',
+        value = unique(data_district$SUB_POPULATION)[1]
+        ),
+      list(
+        type = 'filter',
+        target = 'ids',
+        operation = '=',
+        value = unique(data_district$grade)[1]
+        )
+      )
+    ) %>% # The dropdown menu for SUBPOPULATION
+  layout(
+    title="Rate of successful grade transitions (1993-2020)",
+    yaxis = list(title = "% of Students who Transitioned to the Next Grade"),
+    xaxis=list(title="Year",
+               categoryorder = "array",
+              categoryarray = data_province$year),
+    legend = list(title=list(text='<b> District </b>')),
+    updatemenus = list(
+      list(
+        x=1,
+        y = 0.1,
+        type = 'dropdown',
+        direction="up",
+        active = 0,
+        buttons=list(
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[1]),
+               label = unique(data_district$SUB_POPULATION)[1]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[2]),
+               label = unique(data_district$SUB_POPULATION)[2]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[3]),
+               label = unique(data_district$SUB_POPULATION)[3]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[4]),
+               label = unique(data_district$SUB_POPULATION)[4]),
+          list(method = "restyle",
+               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[5]),
+               label = unique(data_district$SUB_POPULATION)[5])
+          )
+        ),
+      list(
+        x=1,
+        y = 0.2,
+        type = 'dropdown',
+        direction="up",
+        active = 0,
+        buttons=list(
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[1]),
+               label = unique(data_district$grade)[1]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[2]),
+               label = unique(data_district$grade)[2]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[3]),
+               label = unique(data_district$grade)[3]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[4]),
+               label = unique(data_district$grade)[4]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[5]),
+               label = unique(data_district$grade)[5]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[6]),
+               label = unique(data_district$grade)[6]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[7]),
+               label = unique(data_district$grade)[7]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[8]),
+               label = unique(data_district$grade)[8]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[9]),
+               label = unique(data_district$grade)[9]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[10]),
+               label = unique(data_district$grade)[10]),
+          list(method = "restyle",
+               args = list("transforms[1].value", unique(data_district$grade)[11]),
+               label = unique(data_district$grade)[11])
+          )
+        )
+  ))
+```
+
+```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2: An interactive graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
+district_plot_2
+```
+
+
 #### School Level
+
+```{r}
+#WORK IN PROGRESS
+```
 
 ## Conclusions and Summary
 
