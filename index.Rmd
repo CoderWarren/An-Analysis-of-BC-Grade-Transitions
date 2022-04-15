@@ -130,7 +130,7 @@ $$\\[0.2in]$$
 
 ## Results
 
-Prior to doing anything, let's do some exploratory data analysis.
+Prior to doing anything, let's do some exploratory data analysis. You can see the plots and analysis that were made for the provincial, district and school levels in the corresponding tabs.
 
 ### Exploratory Data Analysis {.tabset}
 
@@ -239,7 +239,9 @@ $$\\[0.1in]$$
 
 #### District Level
 
-Below are two interactive plots. Figure 2 displays data regarding...
+Below are two interactive plots. Figure 2 displays the individual data for each of the districts, whilst Figure 3 consists of the summary of all the districts for each year. The dropdown menus for both plots allow you to select a specific grade and population. The axis is fixed for ease of comparison, but you can always zoom in (or hover your mouse to see more details). There are many interesting things you can find with the interactive plots. Below are just a few findings:
+
+* The percentage of students who transitioned to the next grade for Grade 11 fluctuates very dramatically. Playing with the interactive boxplot, one can see that the variation in the rate of transitions from grade 11 to 12 from 2015 to 2020 has been significantly reduced (when compared with the past years). The median of the rates has also increased over time. As such, these plots suggest that there is more equality (due to the decrease in variation) in terms of education/opportunities across the districts, and the education/opportunities offered is of a higher quality (as indicated by the higher median).
 
 $$\\[0.1in]$$
 
@@ -275,7 +277,8 @@ district_plot_1 <- data_district %>%  # Code for the plot
           ) %>% # The dropdown menu for SUBPOPULATION
   layout(
     title="Rate of successful grade transitions (1993-2020)",
-    yaxis = list(title = "% of Students who Transitioned to the Next Grade"),
+    yaxis = list(title = "% of Students who Transitioned to the Next Grade",
+                 range = c(20,100)),
     xaxis=list(title="Year",
                categoryorder = "array",
               categoryarray = data_province$year),
@@ -384,7 +387,8 @@ district_plot_2 <- data_district %>%
     ) %>% # The dropdown menu for SUBPOPULATION
   layout(
     title="Rate of successful grade transitions (1993-2020)",
-    yaxis = list(title = "% of Students who Transitioned to the Next Grade"),
+    yaxis = list(title = "% of Students who Transitioned to the Next Grade",
+                 range = c(20,100)),
     xaxis=list(title="Year",
                categoryorder = "array",
               categoryarray = data_province$year),
