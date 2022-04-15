@@ -5,8 +5,6 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "LinkedIn"
-      href: https://www.linkedin.com/in/warren-zhu/
   right:
     - text: "About the Author"
       href: aboutWarren.html

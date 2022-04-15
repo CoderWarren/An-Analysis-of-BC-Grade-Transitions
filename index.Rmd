@@ -32,7 +32,7 @@ Note that although this is just one question, it is a very complex one, and so n
 
 If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
 
-$$\\[0.5in]$$
+$$\\[0.2in]$$
 
 ## Methods
 
@@ -126,7 +126,7 @@ Before doing anything meaningful, we should first do some exploratory data analy
 #WORK IN PROGRESS (A lot of the existing work is from the Midterm)
 ```
 
-$$\\[0.5in]$$
+$$\\[0.2in]$$
 
 ## Results
 
@@ -143,7 +143,7 @@ Below is an interactive plot. The axis is fixed for ease of comparison, but you 
 * Keeping the top dropdown as `Province-Total` but altering the bottom dropdown between `Indigenous` and `Non Indigenous`, we can see that the rate of successful grade transitions is significantly lower in Indigenous students compared to their non-Indigenous counterparts. We can also see that the increase in the rates of grade transitions over the years is higher for Indigenous students compared to non-Indigenous students.
 * Keeping the top dropdown as `Province-Total` but altering the bottom dropdown between `Non Special Needs` and `Special Needs`, we can see that the rate of successful grade transitions is significantly lower in special needs students compared to students without special needs.
 
-$$\\[0.25in]$$
+$$\\[0.1in]$$
 
 ```{r plot-prep1, echo=FALSE, message=FALSE, warning=FALSE}
 province_plot <- data_province %>%  # Code for the plot
@@ -235,11 +235,13 @@ province_plot <- data_province %>%  # Code for the plot
 province_plot
 ```
 
+$$\\[0.1in]$$
+
 #### District Level
 
 Below are two interactive plots. Figure 2 displays data regarding...
 
-$$\\[0.25in]$$
+$$\\[0.1in]$$
 
 ```{r plot-prep2, echo=FALSE, message=FALSE, warning=FALSE}
 district_plot_1 <- data_district %>%  # Code for the plot
@@ -354,7 +356,7 @@ district_plot_1 <- data_district %>%  # Code for the plot
 district_plot_1
 ```
 
-$$\\[0.25in]$$
+$$\\[0.1in]$$
 
 ```{r plot-prep3, echo=FALSE, message=FALSE, warning=FALSE}
 data_district$year <- as.factor(data_district$year)
@@ -463,6 +465,7 @@ district_plot_2 <- data_district %>%
 district_plot_2
 ```
 
+$$\\[0.1in]$$
 
 #### School Level
 
@@ -470,7 +473,7 @@ district_plot_2
 #WORK IN PROGRESS
 ```
 
-$$\\[0.5in]$$
+$$\\[0.1in]$$
 
 ## Conclusions and Summary
 
