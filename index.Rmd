@@ -22,6 +22,22 @@ library(knitr)
 library(widgetframe)
 ```
 
+## Introduction
+
+This site was created with the intention of answering the following question: 
+
+**How has the quality of education/opportunities in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., indigenous? Special needs?)?**
+
+Note that although this is just one question, it is a very complex one, and so naturally, a lot of data is required to answer it. Thus, this website uses [open data from British Columbia](https://catalogue.data.gov.bc.ca/)--specifically, [the 1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). To gather information regarding the districts, this site also uses [information regarding each district's office, also published by the British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information). By using the grade-to-grade transitions as a metric for the quality of education/opportunities, we can formulate a nuanced response to the question.
+
+If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
+
+$$\\[1in]$$
+
+## Methods
+
+### Data Prep
+
 ```{r read-in, echo=FALSE, message=FALSE, warning=FALSE}
 # Read in the 1992 to 2001 data
 data_1 <- read_excel("data_transitions/grtogrtransition_1992-93_to_2000-01.xlsx")
@@ -100,32 +116,33 @@ data_school$district <- as.integer(data_school$DISTRICT_NUMBER)
 data_school$year <- as.factor(data_school$year)
 ```
 
+Our data came in the form of 3 '.xlsx' files containing information regarding BC grade-to-grade transitions on a provincial, district and school level, while the data regarding the location of the offices of each district was in the form of a '.csv' file. The three '.xlsx' files each contained information on different periods: one file contained information from 1992/93 to 2000/01, another contained information from 2000/01 to 2010/11, and our last one contained information from 2010/11 to 2020/21. There are many rows in each of the '.xlsx' files (the first had 374654, the second had 541501, and the third had 536978), but it is also worth noting that the data was not tidy, as some rows recorded data on "all students" whilst other rows recorded data on "Indigenous students", so each row should not be treated as its own observation. Then, we combined our data into one large data table, and removed entries in our table with missing data.
 
-## Introduction
+### Procedure
 
-This site was created with the intention of answering the following question: 
-
-**How has the quality of education/opportunities in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., indigenous? Special needs?)?**
-
-Note that although this is just one question, it is a very complex one, and so naturally, a lot of data is required to answer it. Thus, this website uses [open data from British Columbia](https://catalogue.data.gov.bc.ca/)--specifically, [the 1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). To gather information regarding the districts, this site also uses [information regarding each district's office, also published by the British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information). By using the grade-to-grade transitions as a metric for the quality of education/opportunities, we can formulate a nuanced response to the question.
-
-If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
-
-## Methods
+Before doing anything meaningful, we should first do some exploratory data analysis. Based on the structure of the data, I felt as though it would be most appropriate to look at the situation from all three levels. We begin by making interactive figures to understand the situation from a provincial and district level. We will also perform model fitting on a school level. By mimicking the structure of our data, we can make the most out of it!
 
 ```{r}
-#WORK IN PROGRESS
+#WORK IN PROGRESS (A lot of the existing work is from the Midterm)
 ```
+
+$$\\[1in]$$
 
 ## Results
 
-```{r}
-#WORK IN PROGRESS
-```
+Prior to doing anything, let's do some exploratory data analysis.
 
-### General Overview {.tabset}
+### Exploratory Data Analysis {.tabset}
 
 #### Provincial Level
+
+Below is an interactive plot. The axis is fixed for ease of comparison, but you can always zoom in. We can observe various things by tweaking the settings of the plot:
+
+* In the `Province-Total` and `All Students` setting, we can see that overall, as time went by, the percentage of students that successfully transitioned to the next grade increased. This is the most prominent for students in grades 8-11. It is also worth noting that the percentage of students in grades 10/11 that successfully transition to the next grade are significant lower than the percentage of students in the lower grades that successfully transition.
+* Keeping the bottom dropdown as `All Students` but altering the top dropdown between `BC Public School` and `BC Independent School`, we can see that the increase in the rate of successful grade transitions is significantly higher in public schools. Furthermore, private schools (i.e., Independent Schools) seem to have a much higher rate of transition, especially for grade levels 8 and above. This does make sense, as private schools are often times more expensive, and so the students attending them naturally live in my affluent families.
+* Keeping the top dropdown as `Province-Total` but altering the bottom dropdown between `Indigenous` and `Non Indigenous`, we can see that...
+
+$$\\[0.5in]$$
 
 ```{r plot-prep1, echo=FALSE, message=FALSE, warning=FALSE}
 province_plot <- data_province %>%  # Code for the plot
@@ -219,6 +236,10 @@ province_plot
 
 #### District Level
 
+Below are two interactive plots. Figure 2 displays data regarding
+
+$$\\[0.5in]$$
+
 ```{r plot-prep2, echo=FALSE, message=FALSE, warning=FALSE}
 district_plot_1 <- data_district %>%  # Code for the plot
   plot_ly(x = ~year, 
@@ -257,7 +278,7 @@ district_plot_1 <- data_district %>%  # Code for the plot
               categoryarray = data_province$year),
     legend = list(title=list(text='<b> District </b>')),
     annotations = list(text = "<b> Grade: </b>",  x = 0.9, xref="paper",
-                       y = 0.15, yref="paper", showarrow=FALSE ),
+                       y = 0.13, yref="paper", showarrow=FALSE ),
     updatemenus = list(
       list(
         x=1,
@@ -332,8 +353,10 @@ district_plot_1 <- data_district %>%  # Code for the plot
 district_plot_1
 ```
 
+$$\\[0.5in]$$
+
 ```{r plot-prep3, echo=FALSE, message=FALSE, warning=FALSE}
-#data_district$year <- as.factor(data_district$year)
+data_district$year <- as.factor(data_district$year)
 district_plot_2 <- data_district %>%
   plot_ly(
     y=~rate,
@@ -362,7 +385,9 @@ district_plot_2 <- data_district %>%
     xaxis=list(title="Year",
                categoryorder = "array",
               categoryarray = data_province$year),
-    legend = list(title=list(text='<b> District </b>')),
+    annotations = list(text = "<b> Grade: </b>",  x = 0.9, xref="paper",
+                       y = 0.13, yref="paper", showarrow=FALSE ),
+    legend = list(title=list(text='<b> Year </b>')),
     updatemenus = list(
       list(
         x=1,
@@ -433,7 +458,7 @@ district_plot_2 <- data_district %>%
   ))
 ```
 
-```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3: An interactive boxplot depicting the percentage of grade 10 BC students from each district that successfully transitioned to the next grade between the years 1993 and 2020."}
+```{r plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 3: An interactive boxplot depicting the percentage of high school BC students from each district that successfully transitioned to the next grade between the years 1993 and 2020."}
 district_plot_2
 ```
 
