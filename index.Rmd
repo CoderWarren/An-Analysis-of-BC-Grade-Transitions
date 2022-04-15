@@ -256,6 +256,8 @@ district_plot_1 <- data_district %>%  # Code for the plot
                categoryorder = "array",
               categoryarray = data_province$year),
     legend = list(title=list(text='<b> District </b>')),
+    annotations = list(text = "<b> Grade: </b>",  x = 0.9, xref="paper",
+                       y = 0.15, yref="paper", showarrow=FALSE ),
     updatemenus = list(
       list(
         x=1,
@@ -331,7 +333,7 @@ district_plot_1
 ```
 
 ```{r plot-prep3, echo=FALSE, message=FALSE, warning=FALSE}
-data_district$year <- as.factor(data_district$year)
+#data_district$year <- as.factor(data_district$year)
 district_plot_2 <- data_district %>%
   plot_ly(
     y=~rate,
