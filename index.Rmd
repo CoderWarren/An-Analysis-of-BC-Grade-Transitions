@@ -32,7 +32,7 @@ Note that although this is just one question, it is a very complex one, and so n
 
 If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
 
-$$\\[1in]$$
+$$\\[0.5in]$$
 
 ## Methods
 
@@ -126,7 +126,7 @@ Before doing anything meaningful, we should first do some exploratory data analy
 #WORK IN PROGRESS (A lot of the existing work is from the Midterm)
 ```
 
-$$\\[1in]$$
+$$\\[0.5in]$$
 
 ## Results
 
@@ -136,13 +136,14 @@ Prior to doing anything, let's do some exploratory data analysis.
 
 #### Provincial Level
 
-Below is an interactive plot. The axis is fixed for ease of comparison, but you can always zoom in. We can observe various things by tweaking the settings of the plot:
+Below is an interactive plot. The axis is fixed for ease of comparison, but you can always zoom in. We can observe various things by tweaking the settings of the plot. Below are just a few discoveries that I found.
 
 * In the `Province-Total` and `All Students` setting, we can see that overall, as time went by, the percentage of students that successfully transitioned to the next grade increased. This is the most prominent for students in grades 8-11. It is also worth noting that the percentage of students in grades 10/11 that successfully transition to the next grade are significant lower than the percentage of students in the lower grades that successfully transition.
-* Keeping the bottom dropdown as `All Students` but altering the top dropdown between `BC Public School` and `BC Independent School`, we can see that the increase in the rate of successful grade transitions is significantly higher in public schools. Furthermore, private schools (i.e., Independent Schools) seem to have a much higher rate of transition, especially for grade levels 8 and above. This does make sense, as private schools are often times more expensive, and so the students attending them naturally live in my affluent families.
-* Keeping the top dropdown as `Province-Total` but altering the bottom dropdown between `Indigenous` and `Non Indigenous`, we can see that...
+* Keeping the bottom dropdown as `All Students` but altering the top dropdown between `BC Public School` and `BC Independent School`, we can see that the rates of grade transitions for students of BC public schools are lower than that of BC independent schools, but the increase in the rate of successful grade transitions is significantly higher in public schools. Furthermore, private schools (i.e., independent schools) seem to have a much higher rate of transition, especially for grade levels 8 and above. This does make sense, as private schools are often times more expensive, and so the students attending them naturally live in my affluent families.
+* Keeping the top dropdown as `Province-Total` but altering the bottom dropdown between `Indigenous` and `Non Indigenous`, we can see that the rate of successful grade transitions is significantly lower in Indigenous students compared to their non-Indigenous counterparts. We can also see that the increase in the rates of grade transitions over the years is higher for Indigenous students compared to non-Indigenous students.
+* Keeping the top dropdown as `Province-Total` but altering the bottom dropdown between `Non Special Needs` and `Special Needs`, we can see that the rate of successful grade transitions is significantly lower in special needs students compared to students without special needs.
 
-$$\\[0.5in]$$
+$$\\[0.25in]$$
 
 ```{r plot-prep1, echo=FALSE, message=FALSE, warning=FALSE}
 province_plot <- data_province %>%  # Code for the plot
@@ -236,9 +237,9 @@ province_plot
 
 #### District Level
 
-Below are two interactive plots. Figure 2 displays data regarding
+Below are two interactive plots. Figure 2 displays data regarding...
 
-$$\\[0.5in]$$
+$$\\[0.25in]$$
 
 ```{r plot-prep2, echo=FALSE, message=FALSE, warning=FALSE}
 district_plot_1 <- data_district %>%  # Code for the plot
@@ -353,7 +354,7 @@ district_plot_1 <- data_district %>%  # Code for the plot
 district_plot_1
 ```
 
-$$\\[0.5in]$$
+$$\\[0.25in]$$
 
 ```{r plot-prep3, echo=FALSE, message=FALSE, warning=FALSE}
 data_district$year <- as.factor(data_district$year)
@@ -468,6 +469,8 @@ district_plot_2
 ```{r}
 #WORK IN PROGRESS
 ```
+
+$$\\[0.5in]$$
 
 ## Conclusions and Summary
 
