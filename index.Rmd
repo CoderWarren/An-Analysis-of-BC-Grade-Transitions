@@ -26,7 +26,7 @@ library(widgetframe)
 
 This site was created with the intention of answering the following question: 
 
-**How has the quality of education/opportunities in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., indigenous? Special needs?)?**
+**How has the quality of education/opportunities in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., Indigenous? Special needs?)?**
 
 Note that although this is just one question, it is a very complex one, and so naturally, a lot of data is required to answer it. Thus, this website uses [open data from British Columbia](https://catalogue.data.gov.bc.ca/)--specifically, [the 1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). To gather information regarding the districts, this site also uses [information regarding each district's office, also published by the British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information). By using the grade-to-grade transitions as a metric for the quality of education/opportunities, we can formulate a nuanced response to the question.
 
@@ -242,6 +242,8 @@ $$\\[0.1in]$$
 Below are two interactive plots. Figure 2 displays the individual data for each of the districts, whilst Figure 3 consists of the summary of all the districts for each year. The dropdown menus for both plots allow you to select a specific grade and population. The axis is fixed for ease of comparison, but you can always zoom in (or hover your mouse to see more details). There are many interesting things you can find with the interactive plots. Below are just a few findings:
 
 * The percentage of students who transitioned to the next grade for Grade 11 fluctuates very dramatically. Playing with the interactive boxplot, one can see that the variation in the rate of transitions from grade 11 to 12 from 2015 to 2020 has been significantly reduced (when compared with the past years). The median of the rates has also increased over time. As such, these plots suggest that there is more equality (due to the decrease in variation) in terms of education/opportunities across the districts, and the education/opportunities offered is of a higher quality (as indicated by the higher median).
+* Playing with the settings of Figure 3, we can see that for most grades (particularly the higher grades, like grade 11) the median percentage of Indigenous students per district who transitioned is significantly lower than that of non-Indigenous students in 1993. This difference is much smaller in 2020, but the median percentage is still less. The same can be said about the variation: the interquartile range (IQR) for the Indigenous 11th graders in different districts was much larger than that of the non-Indigenous counterparts in 1993. In 2020, this different has indeed shrunk, but the IQR for the Indigenous children is still roughly twice that of their non-Indigenous counterparts. As such, we can certainly say that there's an improvement in the quality of education/opportunities for both Indigenous children and non-Indigenous children, but more work needs to be done.
+* The relationship between students with special needs and those without (again, particularly for the higher grades) is very similar to what was seen between Indigenous and non-Indigenous children--the variation for both of the rates decreased over time, but the variation of the rates for the students with special needs was typically higher than the rate for students with special needs. The difference now is minimal though (at least when compared to the past). Likewise, the median rates for both increased over time (although there was a period of time in which the special needs rates were decreasing), but the non-special needs students had a higher median rate for a while now. That said, the difference in the median rate in 2020 was very small.
 
 $$\\[0.1in]$$
 
@@ -474,7 +476,7 @@ $$\\[0.1in]$$
 #### School Level
 
 ```{r}
-#WORK IN PROGRESS
+#WORK IN PROGRESS (Will use my work from the Midterm)
 ```
 
 $$\\[0.1in]$$
