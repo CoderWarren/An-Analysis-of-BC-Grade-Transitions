@@ -22,6 +22,8 @@ library(knitr)
 library(widgetframe)
 ```
 
+$$\\[0.2in]$$
+
 ## Introduction
 
 This site was created with the intention of investigating the education system in British Columbia, Canada. Although test scores can be quite informative, I believe they can be misleading--the difficulty of tests can fluctuate dramatically, effectively resulting in student grades also fluctuating. As such, our metric of choice was grade-to-grade transition rates. These rates do not reflect the quality of the education too accurately, but they are a very good indicator of how much support the British Columbian government is providing to its youth. As such, our questions are as follows:
@@ -39,15 +41,35 @@ $$\\[0.2in]$$
 ### Data Prep
 
 ```{r read-in, echo=FALSE, message=FALSE, warning=FALSE}
+# From: https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition
+#
 # Read in the 1992 to 2001 data
 data_1 <- read_excel("data_transitions/grtogrtransition_1992-93_to_2000-01.xlsx")
 # Read in the 2001 to 2011 data
 data_2 <- read_excel("data_transitions/grtogrtransition_2001-02_to_2010-11.xlsx")
 # Read in the 2011 to 2021 data
 data_3 <- read_excel("data_transitions/grtogrtransition_2011-12_to_2020-21.xlsx")
+
+# From: https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information
+#
 # Read in the locations
 locations <- data.table::fread("data_districts/current_district_office_information.csv")
+
+
+# From: https://catalogue.data.gov.bc.ca/dataset/bc-schools-teacher-statistics
+#
+# Read in teacher "legacy" data
+teacher_1 <- read_excel("data_districts/legacy-teacher-statistics-19911992-20162017.xlsx")
+# Read in teacher data
+teacher_2 <- data.table::fread("data_districts/bc-education-workforce-public-schools-to-2013-2021.csv")
+
+# From: https://catalogue.data.gov.bc.ca/dataset/bc-schools-class-size
+#
+# Read in the class size data
+class_sizes <- data.table::fread("data_schools/class_size_2006-07_to_2021-22.csv")
 ```
+
+
 
 ```{r data-prep-1, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
 # Here, we prepare the merged data set
@@ -478,34 +500,115 @@ district_plot_2
 
 $$\\[0.1in]$$
 
-```{r heaty, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5: Heatmap displaying the trend in overall transition rates for all Grade 11 students for each district over the years. (It is very likely that I will delete or tweak this heatmap prior to the submission of my final project. I really want to add a dropdown to it so I can display data from all grades all at once.)"}
-district_mat <- data_district %>%
-  filter(SUB_POPULATION == "All Students") %>%
-  filter(grade == "11") %>%
-  select(DISTRICT_NAME, year, rate) %>%
-  mutate(DISTRICT_NAME = as.factor(DISTRICT_NAME))
-
-district_mat2 <- as.data.frame(pivot_wider(district_mat, names_from=DISTRICT_NAME,
+```{r heatmap_func, echo=FALSE}
+# A function to make our heatmap matrixes much more easily
+gen_heatmap_mat <- function(gr, sub_pop="All Students"){
+  data_district %>%
+    filter(SUB_POPULATION==sub_pop) %>%
+    filter(grade == gr) %>%
+    select(DISTRICT_NAME, year, rate) %>%
+  mutate(DISTRICT_NAME = as.factor(DISTRICT_NAME)) -> district_mat
+  
+  district_mat2 <- as.data.frame(pivot_wider(district_mat, 
+                                             names_from=DISTRICT_NAME,
                                             values_from = rate))
-
-district_mat2 %>%
+  
+  district_mat2 %>%
   column_to_rownames("year") %>%
-  as.matrix() -> district_mat2
-
-plot_ly(x=colnames(district_mat2), 
-        y=rownames(district_mat2), 
-        z=~district_mat2, type="heatmap",
-        colorbar = list(title = "<b>Rate of Transitions</b>")) %>%
-  layout(
-    title="Rate of successful grade transitions (Grade 11 Students)",
-    xaxis = list(title = "<b>District</b>"),
-    yaxis=list(title="<b>Year</b>"))
+  as.matrix()
+}
 ```
 
+```{r heaty, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5: Heatmap displaying the trend in overall transition rates for various students for each district over the years."}
 
+# Generate our heat map matrices for each grade
+heatmap_mat1 <- gen_heatmap_mat(1)
+heatmap_mat2 <- gen_heatmap_mat(2)
+heatmap_mat3 <- gen_heatmap_mat(3)
+heatmap_mat4 <- gen_heatmap_mat(4)
+heatmap_mat5 <- gen_heatmap_mat(5)
+heatmap_mat6 <- gen_heatmap_mat(6)
+heatmap_mat7 <- gen_heatmap_mat(7)
+heatmap_mat8 <- gen_heatmap_mat(8)
+heatmap_mat9 <- gen_heatmap_mat(9)
+heatmap_mat10 <- gen_heatmap_mat(10)
+heatmap_mat11 <- gen_heatmap_mat(11)
 
+# Generate our text labels
 
-
+# The actual 
+plot_ly(x=colnames(heatmap_mat1), 
+        y=rownames(heatmap_mat1), 
+        type="heatmap",
+        zmin=20,
+        zmax=100,
+        showscale=FALSE) %>%
+  add_trace(z=heatmap_mat1, visible=TRUE, coloraxis = 'coloraxis', name="Grade 1") %>%
+  add_trace(z=heatmap_mat2, visible=FALSE, coloraxis = 'coloraxis', name="Grade 2") %>%
+  add_trace(z=heatmap_mat3, visible=FALSE, coloraxis = 'coloraxis', name="Grade 3") %>%
+  add_trace(z=heatmap_mat4, visible=FALSE, coloraxis = 'coloraxis', name="Grade 4") %>%
+  add_trace(z=heatmap_mat5, visible=FALSE, coloraxis = 'coloraxis', name="Grade 5") %>%
+  add_trace(z=heatmap_mat6, visible=FALSE, coloraxis = 'coloraxis', name="Grade 6") %>%
+  add_trace(z=heatmap_mat7, visible=FALSE, coloraxis = 'coloraxis', name="Grade 7") %>%
+  add_trace(z=heatmap_mat8, visible=FALSE, coloraxis = 'coloraxis', name="Grade 8") %>%
+  add_trace(z=heatmap_mat9, visible=FALSE, coloraxis = 'coloraxis', name="Grade 9") %>%
+  add_trace(z=heatmap_mat10, visible=FALSE, coloraxis = 'coloraxis', name="Grade 10") %>%
+  add_trace(z=heatmap_mat11, visible=FALSE, coloraxis = 'coloraxis', name="Grade 11") %>%
+  layout(
+  coloraxis=list(title = "<b>Rate of Transitions</b>",
+                 colorscale='Viridis',
+                 cmax=100,
+                 cmin=20,
+                 reversescale =T),
+  annotations = list(text = "<b> Transition rate: </b>",  x = 1.2, xref="paper",
+                     y = 1.1, yref="paper", showarrow=FALSE ),
+  title="Rate of successful grade transitions",
+  xaxis = list(title = "<b>District</b>",
+               tickmode='linear'),
+  yaxis=list(title="<b>Year</b>"),
+  updatemenus = list(
+    list(
+      x=1.2,
+      y = 0,
+      type = 'dropdown',
+      direction="up",
+      active = 0,
+      buttons=list(
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 1), TRUE, rep(FALSE, 9)))),
+             label = "Grade 1"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 2), TRUE, rep(FALSE, 8)))),
+             label = "Grade 2"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 3), TRUE, rep(FALSE, 7)))),
+             label = "Grade 3"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 4), TRUE, rep(FALSE, 6)))),
+             label = "Grade 4"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 5), TRUE, rep(FALSE, 5)))),
+             label = "Grade 5"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 6), TRUE, rep(FALSE, 4)))),
+             label = "Grade 6"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 7), TRUE, rep(FALSE, 3)))),
+             label = "Grade 7"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 8), TRUE, rep(FALSE, 2)))),
+             label = "Grade 8"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 9), TRUE, rep(FALSE, 1)))),
+             label = "Grade 9"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 10), TRUE, rep(FALSE, 0)))),
+             label = "Grade 10"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 0), TRUE, rep(FALSE, 10)))),
+             label = "Grade 11")
+    ))))
+```
 
 #### School Level
 
