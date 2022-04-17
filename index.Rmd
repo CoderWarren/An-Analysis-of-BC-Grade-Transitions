@@ -185,7 +185,7 @@ province_plot <- data_province %>%  # Code for the plot
           hoverinfo = 'text',
           text = ~paste('</br> Year: ', year,
                         '</br> Grade: ', grade,
-                      '</br> Rate: ', rate),
+                      '</br> Transition Rate: ', rate),
           transforms=list(
             list(
               type = 'filter',
@@ -266,126 +266,292 @@ $$\\[0.1in]$$
 
 #### District Level
 
-Below are two interactive plots. Figure 2 displays the individual data for each of the districts, whilst Figure 3 consists of the summary of all the districts for each year. The dropdown menus for both plots allow you to select a specific grade and population. The axis is fixed for ease of comparison, but you can always zoom in (or hover your mouse to see more details). There are many interesting things you can find with the interactive plots. Below are just a few findings:
+Below are two interactive plots. Figure 2 is an interactive heatmap that displays all the data we have regarding the transition rates for each group, district, and year. Below is a short explanation of the abbreviations used.
+
+* If there are no bracketed abbreviation in the figure, then you are looking at "All Students"
+* `(NSN)` is an abbreviation for "Non Special Needs"
+* `(SN)` is an abbreviation for "special Needs"
+* `(NI)` is an abbreviation for "Non Indigenous"
+* `(I)` is an abbreviation for "Indigenous"
+
+Figure 3 consists of an interactive boxplot that summarizes the data for all the districts for each year. The axis is fixed for ease of comparison, but you can always zoom in (or hover your mouse to see more details). There are many interesting things you can find with the interactive plots. Below are just a few findings from our figures:
 
 * The percentage of students who transitioned to the next grade for Grade 11 fluctuates very dramatically. Playing with the interactive boxplot, one can see that the variation in the rate of transitions from grade 11 to 12 from 2015 to 2020 has been significantly reduced (when compared with the past years). The median of the rates has also increased over time. As such, these plots suggest that there is more equality (due to the decrease in variation) in terms of education/opportunities across the districts, and the education/opportunities offered is of a higher quality (as indicated by the higher median).
 * Playing with the settings of Figure 3, we can see that for most grades (particularly the higher grades, like grade 11) the median percentage of Indigenous students per district who transitioned is significantly lower than that of non-Indigenous students in 1993. This difference is much smaller in 2020, but the median percentage is still less. The same can be said about the variation: the interquartile range (IQR) for the Indigenous 11th graders in different districts was much larger than that of the non-Indigenous counterparts in 1993. In 2020, this different has indeed shrunk, but the IQR for the Indigenous children is still roughly twice that of their non-Indigenous counterparts. As such, we can certainly say that there's an improvement in the quality of education/opportunities for both Indigenous children and non-Indigenous children, but more work needs to be done.
 * The relationship between students with special needs and those without (again, particularly for the higher grades) is very similar to what was seen between Indigenous and non-Indigenous children--the variation for both of the rates decreased over time, but the variation of the rates for the students with special needs was typically higher than the rate for students with special needs. The difference now is minimal though (at least when compared to the past). Likewise, the median rates for both increased over time (although there was a period of time in which the special needs rates were decreasing), but the non-special needs students had a higher median rate for a while now. That said, the difference in the median rate in 2020 was very small.
 
 $$\\[0.1in]$$
-
-```{r plot-prep2, echo=FALSE, message=FALSE, warning=FALSE}
-district_plot_1 <- data_district %>%  # Code for the plot
-  plot_ly(x = ~year, 
-          y=~rate, 
-          type="scatter", 
-          mode="line",
-          customdata = ~SUB_POPULATION,
-          ids = ~grade,
-          color=~district, 
-          colors="Set2",
-          hoverinfo = 'text',
-          text = ~paste('</br> Year: ', year,
-                        '</br> District: ', district,
-                        '</br> Grade: ', grade,
-                      '</br> Rate: ', rate),
-          transforms=list(
-            list(
-              type = 'filter',
-              target = 'customdata',
-              operation = '=',
-              value = unique(data_district$SUB_POPULATION)[1]
-              ),
-            list(
-              type = 'filter',
-              target = 'ids',
-              operation = '=',
-              value = unique(data_district$grade)[1]
-              )
-            )
-          ) %>% # The dropdown menu for SUBPOPULATION
-  layout(
-    title="Rate of successful grade transitions (1993-2020)",
-    yaxis = list(title = "% of Students who Transitioned to the Next Grade",
-                 range = c(20,100)),
-    xaxis=list(title="Year",
-               categoryorder = "array",
-              categoryarray = data_province$year),
-    legend = list(title=list(text='<b> District </b>')),
-    annotations = list(text = "<b> Grade: </b>",  x = 0.9, xref="paper",
-                       y = 0.13, yref="paper", showarrow=FALSE ),
-    updatemenus = list(
-      list(
-        x=1,
-        y = 0.1,
-        type = 'dropdown',
-        direction="up",
-        active = 0,
-        buttons=list(
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[1]),
-               label = unique(data_district$SUB_POPULATION)[1]),
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[2]),
-               label = unique(data_district$SUB_POPULATION)[2]),
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[3]),
-               label = unique(data_district$SUB_POPULATION)[3]),
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[4]),
-               label = unique(data_district$SUB_POPULATION)[4]),
-          list(method = "restyle",
-               args = list("transforms[0].value", unique(data_district$SUB_POPULATION)[5]),
-               label = unique(data_district$SUB_POPULATION)[5])
-          )
-        ),
-      list(
-        x=1,
-        y = 0.2,
-        type = 'dropdown',
-        direction="up",
-        active = 0,
-        buttons=list(
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[1]),
-               label = unique(data_district$grade)[1]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[2]),
-               label = unique(data_district$grade)[2]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[3]),
-               label = unique(data_district$grade)[3]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[4]),
-               label = unique(data_district$grade)[4]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[5]),
-               label = unique(data_district$grade)[5]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[6]),
-               label = unique(data_district$grade)[6]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[7]),
-               label = unique(data_district$grade)[7]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[8]),
-               label = unique(data_district$grade)[8]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[9]),
-               label = unique(data_district$grade)[9]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[10]),
-               label = unique(data_district$grade)[10]),
-          list(method = "restyle",
-               args = list("transforms[1].value", unique(data_district$grade)[11]),
-               label = unique(data_district$grade)[11])
-          )
-        )
-  ))
+```{r heatmap_func, echo=FALSE}
+# A function to make our heatmap matrixes much more easily
+gen_heatmap_mat <- function(gr, sub_pop="All Students"){
+  data_district %>%
+    filter(SUB_POPULATION==sub_pop) %>%
+    filter(grade == gr) %>%
+    select(DISTRICT_NAME, year, rate) %>%
+  mutate(DISTRICT_NAME = as.factor(DISTRICT_NAME)) -> district_mat
+  
+  district_mat2 <- as.data.frame(pivot_wider(district_mat, 
+                                             names_from=DISTRICT_NAME,
+                                            values_from = rate))
+  
+  district_mat2 %>%
+  column_to_rownames("year") %>%
+  as.matrix()
+}
 ```
 
-```{r plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2: An interactive graph depicting the percentage of high school BC students that successfully transition to the next grade between the years 1993 and 2020."}
-district_plot_1
+```{r plot-2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2: Heatmap displaying the trend in overall transition rates for various students for each district over the years."}
+
+# Generate our text labels
+
+# The actual 
+plot_ly(x=colnames(gen_heatmap_mat(1)), 
+        y=rownames(gen_heatmap_mat(1)), 
+        type="heatmap",
+        zmin=20,
+        zmax=100,
+        showscale=FALSE) %>%
+  add_trace(z=gen_heatmap_mat(1), visible=TRUE, coloraxis = 'coloraxis', name="Grade 1") %>%
+  add_trace(z=gen_heatmap_mat(2), visible=FALSE, coloraxis = 'coloraxis', name="Grade 2") %>%
+  add_trace(z=gen_heatmap_mat(3), visible=FALSE, coloraxis = 'coloraxis', name="Grade 3") %>%
+  add_trace(z=gen_heatmap_mat(4), visible=FALSE, coloraxis = 'coloraxis', name="Grade 4") %>%
+  add_trace(z=gen_heatmap_mat(5), visible=FALSE, coloraxis = 'coloraxis', name="Grade 5") %>%
+  add_trace(z=gen_heatmap_mat(6), visible=FALSE, coloraxis = 'coloraxis', name="Grade 6") %>%
+  add_trace(z=gen_heatmap_mat(7), visible=FALSE, coloraxis = 'coloraxis', name="Grade 7") %>%
+  add_trace(z=gen_heatmap_mat(8), visible=FALSE, coloraxis = 'coloraxis', name="Grade 8") %>%
+  add_trace(z=gen_heatmap_mat(9), visible=FALSE, coloraxis = 'coloraxis', name="Grade 9") %>%
+  add_trace(z=gen_heatmap_mat(10), visible=FALSE, coloraxis = 'coloraxis', name="Grade 10") %>%
+  add_trace(z=gen_heatmap_mat(11), visible=FALSE, coloraxis = 'coloraxis', name="Grade 11") %>%
+  add_trace(z=gen_heatmap_mat(1, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 1 (NSN)") %>% 
+  add_trace(z=gen_heatmap_mat(2, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 2 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(3, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 3 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(4, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 4 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(5, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 5 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(6, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 6 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(7, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 7 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(8, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 8 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(9, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 9 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(10, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 10 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(11, "Non Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 11 (NSN)") %>%
+  add_trace(z=gen_heatmap_mat(1, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 1 (SN)") %>% 
+  add_trace(z=gen_heatmap_mat(2, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 2 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(3, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 3 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(4, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 4 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(5, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 5 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(6, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 6 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(7, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 7 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(8, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 8 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(9, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 9 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(10, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 10 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(11, "Special Needs"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 11 (SN)") %>%
+  add_trace(z=gen_heatmap_mat(1, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 1 (NI)") %>% 
+  add_trace(z=gen_heatmap_mat(2, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 2 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(3, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 3 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(4, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 4 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(5, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 5 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(6, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 6 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(7, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 7 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(8, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 8 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(9, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 9 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(10, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 10 (NI)") %>%
+  add_trace(z=gen_heatmap_mat(11, "Non Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 11 (NI)") %>%
+    add_trace(z=gen_heatmap_mat(1, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 1 (I)") %>% 
+  add_trace(z=gen_heatmap_mat(2, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 2 (I)") %>%
+  add_trace(z=gen_heatmap_mat(3, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 3 (I)") %>%
+  add_trace(z=gen_heatmap_mat(4, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 4 (I)") %>%
+  add_trace(z=gen_heatmap_mat(5, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 5 (I)") %>%
+  add_trace(z=gen_heatmap_mat(6, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 6 (I)") %>%
+  add_trace(z=gen_heatmap_mat(7, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 7 (I)") %>%
+  add_trace(z=gen_heatmap_mat(8, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 8 (I)") %>%
+  add_trace(z=gen_heatmap_mat(9, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 9 (I)") %>%
+  add_trace(z=gen_heatmap_mat(10, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 10 (I)") %>%
+  add_trace(z=gen_heatmap_mat(11, "Indigenous"), visible=FALSE, coloraxis = 'coloraxis', name="Grade 11 (I)") %>%
+  layout(
+    coloraxis=list(title = "<b>Rate of Transitions</b>",
+                 colorscale='Viridis',
+                 cmax=100,
+                 cmin=20,
+                 reversescale =T),
+  annotations = list(text = "<b> Transition rate: </b>",  x = 1.2, xref="paper",
+                     y = 1.1, yref="paper", showarrow=FALSE ),
+  title="Rate of successful grade transitions",
+  xaxis = list(title = "<b>District</b>",
+               tickmode='linear'),
+  yaxis=list(title="<b>Year</b>"),
+  updatemenus = list(
+    list(
+      x=1.2,
+      y = 0,
+      type = 'dropdown',
+      direction="up",
+      active = 0,
+      buttons=list(
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 1), TRUE, rep(FALSE, 53)))),
+             label = "Grade 1"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 12), TRUE, rep(FALSE, 42)))),
+             label = "Grade 1 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 23), TRUE, rep(FALSE, 31)))),
+             label = "Grade 1 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 34), TRUE, rep(FALSE, 21)))),
+             label = "Grade 1 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 35), TRUE, rep(FALSE, 10)))),
+             label = "Grade 1 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 2), TRUE, rep(FALSE, 52)))),
+             label = "Grade 2"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 13), TRUE, rep(FALSE, 41)))),
+             label = "Grade 2 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 24), TRUE, rep(FALSE, 30)))),
+             label = "Grade 2 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 35), TRUE, rep(FALSE, 19)))),
+             label = "Grade 2 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 46), TRUE, rep(FALSE, 8)))),
+             label = "Grade 2 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 3), TRUE, rep(FALSE, 51)))),
+             label = "Grade 3"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 14), TRUE, rep(FALSE, 40)))),
+             label = "Grade 3 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 25), TRUE, rep(FALSE, 29)))),
+             label = "Grade 3 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 36), TRUE, rep(FALSE, 18)))),
+             label = "Grade 3 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 47), TRUE, rep(FALSE, 7)))),
+             label = "Grade 3 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 4), TRUE, rep(FALSE, 50)))),
+             label = "Grade 4"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 15), TRUE, rep(FALSE, 39)))),
+             label = "Grade 4 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 26), TRUE, rep(FALSE, 28)))),
+             label = "Grade 4 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 37), TRUE, rep(FALSE, 17)))),
+             label = "Grade 4 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 48), TRUE, rep(FALSE, 6)))),
+             label = "Grade 4 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 5), TRUE, rep(FALSE, 49)))),
+             label = "Grade 5"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 16), TRUE, rep(FALSE, 38)))),
+             label = "Grade 5 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 27), TRUE, rep(FALSE, 27)))),
+             label = "Grade 5 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 38), TRUE, rep(FALSE, 16)))),
+             label = "Grade 5 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 49), TRUE, rep(FALSE, 5)))),
+             label = "Grade 5 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 6), TRUE, rep(FALSE, 48)))),
+             label = "Grade 6"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 17), TRUE, rep(FALSE, 37)))),
+             label = "Grade 6 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 28), TRUE, rep(FALSE, 26)))),
+             label = "Grade 6 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 39), TRUE, rep(FALSE, 15)))),
+             label = "Grade 6 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 50), TRUE, rep(FALSE, 4)))),
+             label = "Grade 6 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 7), TRUE, rep(FALSE, 47)))),
+             label = "Grade 7"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 18), TRUE, rep(FALSE, 36)))),
+             label = "Grade 7 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 29), TRUE, rep(FALSE, 25)))),
+             label = "Grade 7 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 40), TRUE, rep(FALSE, 14)))),
+             label = "Grade 7 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 51), TRUE, rep(FALSE, 3)))),
+             label = "Grade 7 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 8), TRUE, rep(FALSE, 46)))),
+             label = "Grade 8"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 19), TRUE, rep(FALSE, 35)))),
+             label = "Grade 8 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 30), TRUE, rep(FALSE, 24)))),
+             label = "Grade 8 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 41), TRUE, rep(FALSE, 13)))),
+             label = "Grade 8 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 52), TRUE, rep(FALSE, 2)))),
+             label = "Grade 8 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 9), TRUE, rep(FALSE, 45)))),
+             label = "Grade 9"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 20), TRUE, rep(FALSE, 34)))),
+             label = "Grade 9 (NSN)"),
+          list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 31), TRUE, rep(FALSE, 40)))),
+             label = "Grade 9 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 42), TRUE, rep(FALSE, 12)))),
+             label = "Grade 9 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 53), TRUE, rep(FALSE, 1)))),
+             label = "Grade 9 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 10), TRUE, rep(FALSE, 44)))),
+             label = "Grade 10"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 21), TRUE, rep(FALSE, 33)))),
+             label = "Grade 10 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 32), TRUE, rep(FALSE, 22)))),
+             label = "Grade 10 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 43), TRUE, rep(FALSE, 11)))),
+             label = "Grade 10 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 54), TRUE, rep(FALSE, 0)))),
+             label = "Grade 10 (I)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 11), TRUE, rep(FALSE, 43)))),
+             label = "Grade 11"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 22), TRUE, rep(FALSE, 32)))),
+             label = "Grade 11 (NSN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 33), TRUE, rep(FALSE, 21)))),
+             label = "Grade 11 (SN)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 44), TRUE, rep(FALSE, 10)))),
+             label = "Grade 11 (NI)"),
+        list(method = "restyle",
+             args = list("visible", as.list(c(rep(FALSE, 0), TRUE, rep(FALSE, 54)))),
+             label = "Grade 11 (I)")
+    ))))
 ```
 
 $$\\[0.1in]$$
@@ -499,116 +665,6 @@ district_plot_2
 ```
 
 $$\\[0.1in]$$
-
-```{r heatmap_func, echo=FALSE}
-# A function to make our heatmap matrixes much more easily
-gen_heatmap_mat <- function(gr, sub_pop="All Students"){
-  data_district %>%
-    filter(SUB_POPULATION==sub_pop) %>%
-    filter(grade == gr) %>%
-    select(DISTRICT_NAME, year, rate) %>%
-  mutate(DISTRICT_NAME = as.factor(DISTRICT_NAME)) -> district_mat
-  
-  district_mat2 <- as.data.frame(pivot_wider(district_mat, 
-                                             names_from=DISTRICT_NAME,
-                                            values_from = rate))
-  
-  district_mat2 %>%
-  column_to_rownames("year") %>%
-  as.matrix()
-}
-```
-
-```{r heaty, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5: Heatmap displaying the trend in overall transition rates for various students for each district over the years."}
-
-# Generate our heat map matrices for each grade
-heatmap_mat1 <- gen_heatmap_mat(1)
-heatmap_mat2 <- gen_heatmap_mat(2)
-heatmap_mat3 <- gen_heatmap_mat(3)
-heatmap_mat4 <- gen_heatmap_mat(4)
-heatmap_mat5 <- gen_heatmap_mat(5)
-heatmap_mat6 <- gen_heatmap_mat(6)
-heatmap_mat7 <- gen_heatmap_mat(7)
-heatmap_mat8 <- gen_heatmap_mat(8)
-heatmap_mat9 <- gen_heatmap_mat(9)
-heatmap_mat10 <- gen_heatmap_mat(10)
-heatmap_mat11 <- gen_heatmap_mat(11)
-
-# Generate our text labels
-
-# The actual 
-plot_ly(x=colnames(heatmap_mat1), 
-        y=rownames(heatmap_mat1), 
-        type="heatmap",
-        zmin=20,
-        zmax=100,
-        showscale=FALSE) %>%
-  add_trace(z=heatmap_mat1, visible=TRUE, coloraxis = 'coloraxis', name="Grade 1") %>%
-  add_trace(z=heatmap_mat2, visible=FALSE, coloraxis = 'coloraxis', name="Grade 2") %>%
-  add_trace(z=heatmap_mat3, visible=FALSE, coloraxis = 'coloraxis', name="Grade 3") %>%
-  add_trace(z=heatmap_mat4, visible=FALSE, coloraxis = 'coloraxis', name="Grade 4") %>%
-  add_trace(z=heatmap_mat5, visible=FALSE, coloraxis = 'coloraxis', name="Grade 5") %>%
-  add_trace(z=heatmap_mat6, visible=FALSE, coloraxis = 'coloraxis', name="Grade 6") %>%
-  add_trace(z=heatmap_mat7, visible=FALSE, coloraxis = 'coloraxis', name="Grade 7") %>%
-  add_trace(z=heatmap_mat8, visible=FALSE, coloraxis = 'coloraxis', name="Grade 8") %>%
-  add_trace(z=heatmap_mat9, visible=FALSE, coloraxis = 'coloraxis', name="Grade 9") %>%
-  add_trace(z=heatmap_mat10, visible=FALSE, coloraxis = 'coloraxis', name="Grade 10") %>%
-  add_trace(z=heatmap_mat11, visible=FALSE, coloraxis = 'coloraxis', name="Grade 11") %>%
-  layout(
-  coloraxis=list(title = "<b>Rate of Transitions</b>",
-                 colorscale='Viridis',
-                 cmax=100,
-                 cmin=20,
-                 reversescale =T),
-  annotations = list(text = "<b> Transition rate: </b>",  x = 1.2, xref="paper",
-                     y = 1.1, yref="paper", showarrow=FALSE ),
-  title="Rate of successful grade transitions",
-  xaxis = list(title = "<b>District</b>",
-               tickmode='linear'),
-  yaxis=list(title="<b>Year</b>"),
-  updatemenus = list(
-    list(
-      x=1.2,
-      y = 0,
-      type = 'dropdown',
-      direction="up",
-      active = 0,
-      buttons=list(
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 1), TRUE, rep(FALSE, 9)))),
-             label = "Grade 1"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 2), TRUE, rep(FALSE, 8)))),
-             label = "Grade 2"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 3), TRUE, rep(FALSE, 7)))),
-             label = "Grade 3"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 4), TRUE, rep(FALSE, 6)))),
-             label = "Grade 4"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 5), TRUE, rep(FALSE, 5)))),
-             label = "Grade 5"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 6), TRUE, rep(FALSE, 4)))),
-             label = "Grade 6"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 7), TRUE, rep(FALSE, 3)))),
-             label = "Grade 7"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 8), TRUE, rep(FALSE, 2)))),
-             label = "Grade 8"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 9), TRUE, rep(FALSE, 1)))),
-             label = "Grade 9"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 10), TRUE, rep(FALSE, 0)))),
-             label = "Grade 10"),
-        list(method = "restyle",
-             args = list("visible", as.list(c(rep(FALSE, 0), TRUE, rep(FALSE, 10)))),
-             label = "Grade 11")
-    ))))
-```
 
 #### School Level
 
