@@ -24,11 +24,11 @@ library(widgetframe)
 
 ## Introduction
 
-This site was created with the intention of answering the following question: 
+This site was created with the intention of investigating the education system in British Columbia, Canada. Although test scores can be quite informative, I believe they can be misleading--the difficulty of tests can fluctuate dramatically, effectively resulting in student grades also fluctuating. As such, our metric of choice was grade-to-grade transition rates. These rates do not reflect the quality of the education too accurately, but they are a very good indicator of how much support the British Columbian government is providing to its youth. As such, our questions are as follows:
 
-**How has the quality of education/opportunities in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., Indigenous? Special needs?)?**
+**How has the British Columbian Government's educational support (as indicated by grade-to-grade transition rates) in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., Indigenous? Special needs?)? Are there any other specific attributes that lead to a lower/higher quality of educational support?**
 
-Note that although this is just one question, it is a very complex one, and so naturally, a lot of data is required to answer it. Thus, this website uses [open data from British Columbia](https://catalogue.data.gov.bc.ca/)--specifically, [the 1992-2021 data on grade-to-grade transition published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). To gather information regarding the districts, this site also uses [information regarding each district's office, also published by the British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information). By using the grade-to-grade transitions as a metric for the quality of education/opportunities, we can formulate a nuanced response to the question.
+Note that this is quite a complex question, and so naturally, a lot of data is required to answer it. Thus, this website uses [various open data from British Columbia](https://catalogue.data.gov.bc.ca/). Our main dataset of interest is [the 1992-2021 data on grade-to-grade transition rates published by British Columbia Education Analytics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition). This dataset consists of information on a provincial, district, and school level. Additional information gathered from supplementary datasets. [A dataset on class Sizes from 2006 to 2021](https://catalogue.data.gov.bc.ca/dataset/bc-schools-class-size) provides us information on all three levels, but here we mainly use it on the school level. For the district level, we used [a dataset regarding each district's office](https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information) and [a dataset regarding British Columbian Teachers for each district](https://catalogue.data.gov.bc.ca/dataset/bc-schools-teacher-statistics).
 
 If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
 
@@ -118,6 +118,11 @@ data_school$year <- as.factor(data_school$year)
 
 Our data came in the form of 3 '.xlsx' files containing information regarding BC grade-to-grade transitions on a provincial, district and school level, while the data regarding the location of the offices of each district was in the form of a '.csv' file. The three '.xlsx' files each contained information on different periods: one file contained information from 1992/93 to 2000/01, another contained information from 2000/01 to 2010/11, and our last one contained information from 2010/11 to 2020/21. There are many rows in each of the '.xlsx' files (the first had 374654, the second had 541501, and the third had 536978), but it is also worth noting that the data was not tidy, as some rows recorded data on "all students" whilst other rows recorded data on "Indigenous students", so each row should not be treated as its own observation. Then, we combined our data into one large data table, and removed entries in our table with missing data.
 
+```{r}
+#WORK IN PROGRESS (Describe how the additional datasets were dealt with)
+```
+
+
 ### Procedure
 
 Before doing anything meaningful, we should first do some exploratory data analysis. Based on the structure of the data, I felt as though it would be most appropriate to look at the situation from all three levels. We begin by making interactive figures to understand the situation from a provincial and district level. We will also perform model fitting on a school level. By mimicking the structure of our data, we can make the most out of it!
@@ -136,7 +141,7 @@ Prior to doing anything, let's do some exploratory data analysis. You can see th
 
 #### Provincial Level
 
-Below is an interactive plot. The axis is fixed for ease of comparison, but you can always zoom in. We can observe various things by tweaking the settings of the plot. Below are just a few discoveries that I found.
+Below is an interactive plot that shows the grade-to-grade transition rates over time. Using the drop menus located on the lower right corner of the grid, we can tweak our population of interest. The axis is fixed for ease of comparison, but you can always zoom in. We can observe various things by tweaking the settings of the plot. Below are just a few discoveries that I found.
 
 * In the `Province-Total` and `All Students` setting, we can see that overall, as time went by, the percentage of students that successfully transitioned to the next grade increased. This is the most prominent for students in grades 8-11. It is also worth noting that the percentage of students in grades 10/11 that successfully transition to the next grade are significant lower than the percentage of students in the lower grades that successfully transition.
 * Keeping the bottom dropdown as `All Students` but altering the top dropdown between `BC Public School` and `BC Independent School`, we can see that the rates of grade transitions for students of BC public schools are lower than that of BC independent schools, but the increase in the rate of successful grade transitions is significantly higher in public schools. Furthermore, private schools (i.e., independent schools) seem to have a much higher rate of transition, especially for grade levels 8 and above. This does make sense, as private schools are often times more expensive, and so the students attending them naturally live in my affluent families.
@@ -473,7 +478,7 @@ district_plot_2
 
 $$\\[0.1in]$$
 
-```{r heaty, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 4: Heatmap displaying the trend in overall transition rates for all Grade 11 students for each district over the years. (It is very likely that I will delete or tweak this heatmap prior to the submission of my final project. I really want to add a dropdown to it so I can display data from all grades all at once.)"}
+```{r heaty, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 5: Heatmap displaying the trend in overall transition rates for all Grade 11 students for each district over the years. (It is very likely that I will delete or tweak this heatmap prior to the submission of my final project. I really want to add a dropdown to it so I can display data from all grades all at once.)"}
 district_mat <- data_district %>%
   filter(SUB_POPULATION == "All Students") %>%
   filter(grade == "11") %>%
@@ -504,224 +509,17 @@ plot_ly(x=colnames(district_mat2),
 
 #### School Level
 
-```{r}
-#WORK IN PROGRESS (Will use my work from the Midterm)
-```
+For the school level, three linear models that predicted grade-to-grade transition rates (i.e., the grade-to-grade transition rate of a specific school, grade level, and a certain population) were fitted to explore 
+
+
+
+
 
 $$\\[0.1in]$$
 
+### Machine Learning
 
-```{r}
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r, echo=FALSE, eval=FALSE}
-# Very Helpful Documentation:
-# https://plotly.com/r/map-configuration/
-g <- list(
-  visible = F,
-  resolution = 50,
-  scope = "north america",
-  showcountries = T,
-  countrycolor = toRGB("Black"),
-  showsubunits = T,
-  subunitcolor = toRGB("Blue"),
-  showland = TRUE,
-  landcolor = toRGB("#e5ecf6")
-)
-```
-
-```{r, echo=FALSE, eval=FALSE}
-steps <- list(
-  list(args = list("transforms[1].value", unique(data_district$year)[1]),
-                    label = unique(data_district$year)[1],
-                    method = "restyle", 
-                    value = "1"),
-  list(args = list("transforms[1].value", unique(data_district$year)[2]),
-                    label = unique(data_district$year)[2],
-                    method = "restyle", 
-                    value = "2"),
-  list(args = list("transforms[1].value", unique(data_district$year)[3]),
-                    label = unique(data_district$year)[3],
-                    method = "restyle", 
-                    value = "3"
-                    )
-  )
-```
-
-```{r, echo=FALSE, eval=FALSE}
-fig <- data_district %>% 
-  filter(SUB_POPULATION == "All Students") %>% 
-  plot_ly(type = 'scattergeo', 
-          lat = ~Y, 
-          lon = ~X,
-          ids=~grade,
-          customdata=~year,
-          color= ~rate,
-          text = ~paste('</br> Year: ', year,
-                        '</br> District Number: ', DISTRICT_NUMBER,
-                        '</br> District Name: ', DISTRICT_NAME,
-                        '</br> District City: ', DISTRICT_CITY,
-                        '</br> Grade: ', grade,
-                        '</br> Transition Rate: ', rate),
-          hoverinfo = "text",
-          mode = 'markers',
-          transforms=list(
-            list(
-              type = 'filter',
-              target = 'ids',
-              operation = '=',
-              value = unique(data_district$grade)[1]
-              ),
-            list(
-              type = 'filter',
-              target = 'customdata',
-              operation = '=',
-              value = unique(data_district$year)[1]
-            )
-            )) %>%
-  layout(geo = g,
-         annotations = list(text = "<b> Grade: </b>",  x = 0.9, xref="paper",
-                            y = 0.13, yref="paper", showarrow=FALSE ),
-         updatemenus = list(
-           list(
-             x=1,
-             y = 0.2,
-             type = 'dropdown', 
-             direction="up",
-             active = 0,
-             buttons=list(
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[1]),
-                    label = unique(data_district$grade)[1]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[2]),
-                    label = unique(data_district$grade)[2]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[3]),
-                    label = unique(data_district$grade)[3]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[4]),
-                    label = unique(data_district$grade)[4]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[5]),
-                    label = unique(data_district$grade)[5]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[6]),
-                    label = unique(data_district$grade)[6]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[7]),
-                    label = unique(data_district$grade)[7]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[8]),
-                    label = unique(data_district$grade)[8]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[9]),
-                    label = unique(data_district$grade)[9]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[10]),
-                    label = unique(data_district$grade)[10]),
-               list(method = "restyle",
-                    args = list("transforms[0].value", unique(data_district$grade)[11]),
-                    label = unique(data_district$grade)[11])
-               )
-             )
-           ),
-         sliders = list(
-           list(
-             active = 0, 
-             currentvalue = list(prefix = "Year: "), 
-             pad = list(t = 60), 
-             steps = steps)))
-fig
-```
-
-
-
-
-
-```{r, echo=FALSE, eval=FALSE}
-map <- data_district %>%
-  plot_ly(
-  type = 'scattermapbox',
-  mode = "markers+lines",
-  lat = ~Y,
-  lon = ~X,
-  marker = list(size = 10))
-map
-```
-
-
-
-
-
-
-
-
-```{r YEEETER, echo=FALSE, eval=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 7: Interative map displaying the location of the board offices for each district. The color of the points is based on the rate of successful transitions from Grade 11 to 12 in 2020."}
-
-
-# Data for the first plot
-data_district %>%
-  filter(DATA_LEVEL == "District Level") %>%
-  filter(SUB_POPULATION == "All Students") %>%
-  filter(grade==11) %>%
-  filter(year==1993) -> plot_data_1
-
-# Data for the second plot
-data_district %>%
-  filter(DATA_LEVEL == "District Level") %>%
-  filter(SUB_POPULATION == "All Students") %>%
-  filter(grade==11) %>%
-  filter(year==2020) -> plot_data_2
-
-# Data for both
-plot_data_both <- rbind(plot_data_1, plot_data_2)
-
-# A function to determine the color of the points
-color_me <- colorNumeric(c('blue', 'purple', 'red'),
-                       domain=plot_data_both$rate[!is.na(plot_data_both$rate)],
-                       na.color=NA)
-
-
-data_district %>%
-  filter(DATA_LEVEL == "District Level") %>%
-  filter(SUB_POPULATION == "All Students") %>%
-  filter(grade==11) %>%
-  filter(year==2020) -> plot_data_2
-
-# The actual plot
-plot_data_2 %>%
-  leaflet() %>%
-  addProviderTiles('OpenStreetMap') %>%
-    addCircles(lat=~Y, lng=~X, color=~color_me(rate),
-               label=~paste(round(rate,2), 'Grade 11 to 12 Transition Rate'),
-                            opacity=1, fillOpacity=1, radius=10000) %>%
-  addLegend('bottomleft', pal=color_me, values=plot_data_2$rate,
-            title="Grade 11 to 12 Transition Rate (%)", opacity=1,
-            na.label=NULL) -> my_map
-
-plot_ly(my_map)
-```
-
+Thanks to our many supplementary data sets.
 
 
 
@@ -730,3 +528,5 @@ plot_ly(my_map)
 ```{r}
 #WORK IN PROGRESS
 ```
+
+In the future, we could also look at data on various [exam results](https://catalogue.data.gov.bc.ca/dataset/bc-schools-examinations-results) and [assessment statistics](https://catalogue.data.gov.bc.ca/dataset/bc-schools-foundation-skills-assessment-fsa-) provided by the British Columbian government and relate them to our findings in this study.
