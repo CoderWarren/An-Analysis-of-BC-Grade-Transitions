@@ -10,7 +10,6 @@ output:
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
 # Set up everything here. This is hidden from the final output
 #install.packages(c("data.table","leaflet"))
-library(readxl)
 library(data.table)
 library(leaflet)
 library(tidyverse)
@@ -34,6 +33,11 @@ Note that this is quite a complex question, and so naturally, a lot of data is r
 
 If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
 
+```{r}
+#TODO: Add PDF download link
+```
+
+
 $$\\[0.2in]$$
 
 ## Methods
@@ -44,11 +48,11 @@ $$\\[0.2in]$$
 # From: https://catalogue.data.gov.bc.ca/dataset/bc-schools-grade-to-grade-transition
 #
 # Read in the 1992 to 2001 data
-data_1 <- read_excel("data_transitions/grtogrtransition_1992-93_to_2000-01.xlsx")
+data_1 <- data.table::fread("data_transitions/grtogrtransition_1992-93_to_2000-01.csv")
 # Read in the 2001 to 2011 data
-data_2 <- read_excel("data_transitions/grtogrtransition_2001-02_to_2010-11.xlsx")
+data_2 <- data.table::fread("data_transitions/grtogrtransition_2001-02_to_2010-11.csv")
 # Read in the 2011 to 2021 data
-data_3 <- read_excel("data_transitions/grtogrtransition_2011-12_to_2020-21.xlsx")
+data_3 <- data.table::fread("data_transitions/grtogrtransition_2011-12_to_2020-21.csv")
 
 # From: https://catalogue.data.gov.bc.ca/dataset/bc-schools-school-district-information
 #
@@ -59,7 +63,7 @@ locations <- data.table::fread("data_districts/current_district_office_informati
 # From: https://catalogue.data.gov.bc.ca/dataset/bc-schools-teacher-statistics
 #
 # Read in teacher "legacy" data
-teacher_1 <- read_excel("data_districts/legacy-teacher-statistics-19911992-20162017.xlsx")
+teacher_1 <- data.table::fread("data_districts/legacy-teacher-statistics-19911992-20162017.csv")
 # Read in teacher data
 teacher_2 <- data.table::fread("data_districts/bc-education-workforce-public-schools-to-2013-2021.csv")
 
@@ -123,7 +127,8 @@ data_district <- left_join(x=data_district, y=locations,
 # Drop columns that aren't used
 data_district <- subset(data_district, select=-c(
   DISTRICT_PROVINCE, DISTRICT_POSTAL_CODE, 
-  DISTRICT_PHONE_NUMBER, DISTRICT_WEBSITE))
+  DISTRICT_PHONE_NUMBER, DISTRICT_WEBSITE,
+  SCHOOL_YEAR))
 
 # Turn our district into a factor variable
 data_district$district <- as.factor(data_district$district)
@@ -133,17 +138,24 @@ summary(data_district)
 ```
 
 ```{r data-prep-4, echo=FALSE, message=FALSE, warning=FALSE, results=FALSE}
+# Prepare the data for data_school from the main data set
 data_school <- data %>% filter(DATA_LEVEL == "School Level")
 data_school$district <- as.integer(data_school$DISTRICT_NUMBER)
-data_school$year <- as.factor(data_school$year)
+
+# Prepare the class_sizes dataset for merging
+class_sizes$year <- strtoi(substr(class_sizes$SCHOOL_YEAR, 1, 4))
+c_size_merge <- class_sizes %>%
+  filter(DATA_LEVEL == "School Level") %>%
+  select(-c(DATA_LEVEL, DISTRICT_NUMBER, SCHOOL_NAME,
+            PUBLIC_OR_INDEPENDENT))
+
+temp <- left_join(x=data_school, y=c_size_merge,
+                  by=c("SCHOOL_NUMBER" = "SCHOOL_NUMBER",
+                       "year" = "year")) %>%
+                    filter(year >= min(c_size_merge$year))
 ```
 
-Our data came in the form of 3 '.xlsx' files containing information regarding BC grade-to-grade transitions on a provincial, district and school level, while the data regarding the location of the offices of each district was in the form of a '.csv' file. The three '.xlsx' files each contained information on different periods: one file contained information from 1992/93 to 2000/01, another contained information from 2000/01 to 2010/11, and our last one contained information from 2010/11 to 2020/21. There are many rows in each of the '.xlsx' files (the first had 374654, the second had 541501, and the third had 536978), but it is also worth noting that the data was not tidy, as some rows recorded data on "all students" whilst other rows recorded data on "Indigenous students", so each row should not be treated as its own observation. Then, we combined our data into one large data table, and removed entries in our table with missing data.
-
-```{r}
-#WORK IN PROGRESS (Describe how the additional datasets were dealt with)
-```
-
+All files that were used are of the '.csv' format. Our main data came in the form of 3 files containing information regarding BC grade-to-grade transitions on a provincial, district and school level (the 3 files for 3 different decades). It is worth noting that few of the files were tidy--many of the files had some rows that recorded data on "all students" whilst other rows recorded data on "Indigenous students", so each row should not be treated as its own observation. As such, we had to be careful when working with it. We merged and filtered the data from all of the files into three data tables--one for the provincial level, one for the district level, and one for the school value. Rather than imputing, we removed entries in our table with missing data, as I felt as though imputation would lead to my figures being misleading.
 
 ### Procedure
 
@@ -674,12 +686,6 @@ $$\\[0.1in]$$
 
 For the school level, three linear models that predicted grade-to-grade transition rates (i.e., the grade-to-grade transition rate of a specific school, grade level, and a certain population) were fitted to explore 
 
-
-
-
-
-$$\\[0.1in]$$
-
 ### Machine Learning
 
 ```{r}
@@ -688,7 +694,7 @@ $$\\[0.1in]$$
 
 Thanks to our many supplementary data sets.
 
-
+$$\\[0.1in]$$
 
 ## Conclusions and Summary
 
