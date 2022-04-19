@@ -722,6 +722,8 @@ $$\\[0.1in]$$
 
 #### School Level
 
+##### Exploratory Data Analysis for Question 1
+
 ```{r advanced-reg-1, echo=FALSE, eval=FALSE}
 mod_data_1 <- data_school %>%
   filter(SUB_POPULATION=="Non Indigenous"|SUB_POPULATION=="Indigenous")
@@ -766,6 +768,8 @@ I ended up fitting three linear models that predicted grade-to-grade transition 
 Note that the point of creating these models was not to create a model for future prediction--we will do that at the machine learning section (which is below this section) instead. The models created here were purely for interpretability. As such, although my first, second, and third models had $R^2$ values of 0.2164, 0.1542 and 0.1551, respectively--which are very low $R^2$ values--I was not bothered. The estimated increase in transition rates for each year are all positive (i.e., the slopes), which supports our claim that over time our percentage of successful grade to grade transitions has increase, which suggests the education is improving.
 
 All of the predictors had an extremely small p-values (less than 1e-16), which hints at the fact that it is very likely that there is a difference in grade-to-grade transitions between people of different grades, between Indigenous and non Indigenous students, between special needs and non special students, and between students of public and private/independent schools. The coefficients of our models tell us more about these differences. The first model suggests that Indigenous students had a 2.502% lower mean rate of successful transitions, while our second model suggested that students with special needs have a 1.126% lower mean rate of successful transitions compared to their non-Indigenous and non-special needs counterparts, respectively. Looking at the coefficients for the grades for all of our models, we can also see that our model suggests that students in high school (BC high school starts at grade 8) are significantly less likely to transition to their next grade compared to their elementary school counterparts. This is probably due to the riskier behaviors certain high school students have, which may result them getting in all sorts of trouble. Lastly, our model suggests that the transition rate for public schools is smaller than that of private schools, but this different is fairly negligible. This provides a nice answer to our first question at a school level.
+
+##### Exploratory Data Analysis for Question 2
 
 ```{r check_special_needs, eval=FALSE, echo=FALSE}
 unique(ML_school_data$SUB_POPULATION)
