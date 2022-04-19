@@ -148,30 +148,72 @@ c_size_merge <- class_sizes %>%
   filter(DATA_LEVEL == "School Level") %>%
   select(-c(DATA_LEVEL, DISTRICT_NUMBER, SCHOOL_NAME,
             PUBLIC_OR_INDEPENDENT))
-
-temp <- left_join(x=data_school, y=c_size_merge,
-                  by=c("SCHOOL_NUMBER" = "SCHOOL_NUMBER",
-                       "year" = "year")) %>%
-                    filter(year >= min(c_size_merge$year))
+# Prepare data for Machine Learning. Merge our school data with the class sizes
+ML_school_data <- left_join(x=data_school, y=c_size_merge,
+                            by=c("SCHOOL_NUMBER" = "SCHOOL_NUMBER",
+                                 "year" = "year")) %>%
+  filter(year >= min(c_size_merge$year)) %>%
+  filter(PUBLIC_OR_INDEPENDENT == "BC Public School") %>%
+  select(-c(NUM_OF_SCHOOLS_IN_DATA_LEVEL, SCHOOL_YEAR, DISTRICT_NUMBER,
+            FACILITY_TYPE))
+# Use the correct average for the correct grade groupp
+ML_school_data <- ML_school_data %>%
+  mutate(AVG_CLASS_SIZE_GRADE_GROUP =
+           case_when(
+             ML_school_data$grade==1 ~ AVG_CLASS_SIZE_1_3,
+             ML_school_data$grade==2 ~ AVG_CLASS_SIZE_1_3,
+             ML_school_data$grade==3 ~ AVG_CLASS_SIZE_1_3,
+             ML_school_data$grade==4 ~ AVG_CLASS_SIZE_4_7,
+             ML_school_data$grade==5 ~ AVG_CLASS_SIZE_4_7,
+             ML_school_data$grade==6 ~ AVG_CLASS_SIZE_4_7,
+             ML_school_data$grade==7 ~ AVG_CLASS_SIZE_4_7,
+             ML_school_data$grade==8 ~ AVG_CLASS_SIZE_8_12,
+             ML_school_data$grade==9 ~ AVG_CLASS_SIZE_8_12,
+             ML_school_data$grade==10 ~ AVG_CLASS_SIZE_8_12,
+             ML_school_data$grade==11 ~ AVG_CLASS_SIZE_8_12,
+           )) %>%
+  select(-c(AVG_CLASS_SIZE_K, AVG_CLASS_SIZE_1_3, 
+            AVG_CLASS_SIZE_4_7, AVG_CLASS_SIZE_8_12))
+# Replace the suitable NAs with 0s
+ML_school_data$TOTAL_CLASSES_GREATER_30[is.na(ML_school_data$TOTAL_CLASSES_GREATER_30)] <- 0
+ML_school_data$TOTAL_WITH_EA[is.na(ML_school_data$TOTAL_WITH_EA)] <- 0
+ML_school_data <- na.omit(ML_school_data)
+# Modify the teacher_1 datAset to have a year attribute
+teacher_1$year <- strtoi(substr(teacher_1$`SCHOOL YEAR`, 1, 4))
+# Prepare an intermediate dataset so merging goes smoothly
+teacher_1 %>%
+  filter(GENDER=="All") %>%
+  filter(`Educators CATEGORY`=="Educators") %>%
+  filter(`DATA LEVEL`=="DISTRICT LEVEL") %>%
+  select(c(year, `DISTRICT NUMBER`, `FULLTIME Educators CNT`,
+           `PARTIME Educators CNT`)) -> teacher_merge
+teacher_merge$`FULLTIME Educators CNT`[is.na(teacher_merge$`FULLTIME Educators CNT`)] <- 0
+teacher_merge$`PARTIME Educators CNT`[is.na(teacher_merge$`PARTIME Educators CNT`)] <- 0  
+teacher_merge$`DISTRICT NUMBER` <- as.integer(teacher_merge$`DISTRICT NUMBER`)
+ML_school_data <- left_join(x=ML_school_data, y=teacher_merge,
+                            by=c("district" = "DISTRICT NUMBER",
+                                 "year" = "year"))
+ML_school_data$`FULLTIME Educators CNT` <- strtoi(ML_school_data$`FULLTIME Educators CNT`)
+ML_school_data$`PARTIME Educators CNT` <- strtoi(ML_school_data$`PARTIME Educators CNT`)
 ```
 
 All files that were used are of the '.csv' format. Our main data came in the form of 3 files containing information regarding BC grade-to-grade transitions on a provincial, district and school level (the 3 files for 3 different decades). It is worth noting that few of the files were tidy--many of the files had some rows that recorded data on "all students" whilst other rows recorded data on "Indigenous students", so each row should not be treated as its own observation. As such, we had to be careful when working with it. We merged and filtered the data from all of the files into three data tables--one for the provincial level, one for the district level, and one for the school value. Rather than imputing, we removed entries in our table with missing data, as I felt as though imputation would lead to my figures being misleading.
 
 ### Procedure
 
-Before doing anything meaningful, we should first do some exploratory data analysis. Based on the structure of the data, I felt as though it would be most appropriate to look at the situation from all three levels. We begin by making interactive figures to understand the situation from a provincial and district level. We will also perform model fitting on a school level. By mimicking the structure of our data, we can make the most out of it!
+Before doing anything meaningful, we should first do some exploratory data analysis. Based on the structure of the data, I felt as though it would be most appropriate to look at the situation from all three levels. We begin by making interactive figures to understand the situation from a provincial and district level. We will also perform basic model fitting on a school level. By mimicking the structure of our data, we can make the most out of it! Our data exploration is primarily for the purpose of answering our first question: **How has the British Columbian Government's educational support (as indicated by grade-to-grade transition rates) in the past 30 years differed in different kinds of schools, as well as for different types of British Columbian students (i.e., Indigenous? Special needs?)?**
 
-```{r}
-#WORK IN PROGRESS (A lot of the existing work is from the Midterm)
-```
+After doing some basic Exploratory Data Analysis, we will fit some machine learning models (namely bagging, random forests, and boosting) on a school level, as there are not enough features or number of observations on the district and provincial levels to fit these machine-learning models in a meaningful way. The primary focus of this section is to answer our second question: **Are there any other specific attributes that lead to a lower/higher quality of educational support?**
 
 $$\\[0.2in]$$
 
 ## Results
 
-Prior to doing anything, let's do some exploratory data analysis. You can see the plots and analysis that were made for the provincial, district and school levels in the corresponding tabs.
+Let us begin with some exploratory data analysis. 
 
 ### Exploratory Data Analysis {.tabset}
+
+You can see the plots and analysis that were made for the provincial, district and school levels by clicking on the corresponding tabs.
 
 #### Provincial Level
 
@@ -214,7 +256,7 @@ province_plot <- data_province %>%  # Code for the plot
             )
           ) %>% # The dropdown menu for SUBPOPULATION
   layout(
-    title="Rate of successful grade transitions (1993-2020)",
+    title="OVerall Rate of Successful Grade Transitions (1993-2020)",
     yaxis = list(title = "% of Students who Transitioned to the Next Grade",
                  range = c(40,100)),
     xaxis=list(title="Year",
@@ -384,9 +426,9 @@ plot_ly(x=colnames(gen_heatmap_mat(1)),
                  cmax=100,
                  cmin=20,
                  reversescale =T),
-  annotations = list(text = "<b> Transition rate: </b>",  x = 1.2, xref="paper",
+  annotations = list(text = "<b> Transition rate (%): </b>",  x = 1.2, xref="paper",
                      y = 1.1, yref="paper", showarrow=FALSE ),
-  title="Rate of successful grade transitions",
+  title="Rate of Successful Grade Transitions for Different Districts (1993-2020)",
   xaxis = list(title = "<b>District</b>",
                tickmode='linear'),
   yaxis=list(title="<b>Year</b>"),
@@ -593,7 +635,7 @@ district_plot_2 <- data_district %>%
       )
     ) %>% # The dropdown menu for SUBPOPULATION
   layout(
-    title="Rate of successful grade transitions (1993-2020)",
+    title="Rate of Successful Grade Transitions for Different Districts (1993-2020)",
     yaxis = list(title = "% of Students who Transitioned to the Next Grade",
                  range = c(20,100)),
     xaxis=list(title="Year",
@@ -680,11 +722,120 @@ $$\\[0.1in]$$
 
 #### School Level
 
-```{r}
-# WORK IN PROGRESS
+```{r advanced-reg-1, echo=FALSE, eval=FALSE}
+mod_data_1 <- data_school %>%
+  filter(SUB_POPULATION=="Non Indigenous"|SUB_POPULATION=="Indigenous")
+
+#gam_mod<- gam(rate ~ s(year, bs="cr", k=10) + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, #data=mod_data_1)
+#summary(gam_mod)
+#plot(gam_mod)
+
+lm_mod_1 <- lm(rate ~ year + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, data=mod_data_1)
+summary(lm_mod_1)
+#plot(lm_mod_1)
 ```
 
-For the school level, three linear models that predicted grade-to-grade transition rates (i.e., the grade-to-grade transition rate of a specific school, grade level, and a certain population) were fitted to explore 
+```{r advanced-reg-2, echo=FALSE, eval=FALSE}
+mod_data_2 <- data_school %>%
+  filter(SUB_POPULATION=="Non Special Needs"|SUB_POPULATION=="Special Needs")
+
+#gam_mod<- gam(rate ~ s(year, bs="cr", k=10) + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, #data=mod_data_2)
+#summary(gam_mod)
+#plot(gam_mod)
+
+lm_mod_2 <- lm(rate ~ year + SUB_POPULATION + grade + PUBLIC_OR_INDEPENDENT, data=mod_data_2)
+summary(lm_mod_2)
+#plot(lm_mod_2)
+```
+
+```{r advanced-reg-3, echo=FALSE, eval=FALSE}
+mod_data_3 <- data_school %>%
+  filter(SUB_POPULATION=="All Students")
+
+#gam_mod<- gam(rate ~ s(year, bs="cr", k=10) + grade + PUBLIC_OR_INDEPENDENT, #data=mod_data_2)
+#summary(gam_mod)
+#plot(gam_mod)
+
+lm_mod_3 <- lm(rate ~ year + grade + PUBLIC_OR_INDEPENDENT, data=mod_data_3)
+summary(lm_mod_3)
+#plot(lm_mod_3)
+```
+
+I ended up fitting three linear models that predicted grade-to-grade transition rates (i.e., the grade-to-grade transition rate of a specific school, grade level, and a certain population). The first model further split the groups into Indigenous students and non-Indigenous students, while the second model split the group into ones with special needs and without. The third model simply dealt with all students (i.e., we did not split into subgroups). The predictors I used was the year, the grade level of interest, and whether the school was public or private. I also used the sub-population of interest as a predictor in my first two models.
+
+Note that the point of creating these models was not to create a model for future prediction--we will do that at the machine learning section (which is below this section) instead. The models created here were purely for interpretability. As such, although my first, second, and third models had $R^2$ values of 0.2164, 0.1542 and 0.1551, respectively--which are very low $R^2$ values--I was not bothered. The estimated increase in transition rates for each year are all positive (i.e., the slopes), which supports our claim that over time our percentage of successful grade to grade transitions has increase, which suggests the education is improving.
+
+All of the predictors had an extremely small p-values (less than 1e-16), which hints at the fact that it is very likely that there is a difference in grade-to-grade transitions between people of different grades, between Indigenous and non Indigenous students, between special needs and non special students, and between students of public and private/independent schools. The coefficients of our models tell us more about these differences. The first model suggests that Indigenous students had a 2.502% lower mean rate of successful transitions, while our second model suggested that students with special needs have a 1.126% lower mean rate of successful transitions compared to their non-Indigenous and non-special needs counterparts, respectively. Looking at the coefficients for the grades for all of our models, we can also see that our model suggests that students in high school (BC high school starts at grade 8) are significantly less likely to transition to their next grade compared to their elementary school counterparts. This is probably due to the riskier behaviors certain high school students have, which may result them getting in all sorts of trouble. Lastly, our model suggests that the transition rate for public schools is smaller than that of private schools, but this different is fairly negligible. This provides a nice answer to our first question at a school level.
+
+```{r check_special_needs, eval=FALSE, echo=FALSE}
+unique(ML_school_data$SUB_POPULATION)
+```
+
+As we will be training a machine learning model on a dataset at the school level, it is worth doing some exploratory data analysis at that dataset. Note that as the dataset that we will use for the machine learning model is the result of merging several datasets, and as some datasets cover a different range of years, the machine learning dataset will only cover years from 2006 and 2016.
+
+Below is an interactive plot showing how the number of full time educators in a district and the average class size for a grade group in a school may have an effect on the grade transition rates. You can change the year and the grade of interest through the dropdown menu. One observation we can make is that the lower grade transition rates are often located on the left side (i.e., low number of full time educators) and for relatively high grades, like grade 11.
+
+```{r school_level_plot, echo=FALSE, fig.cap="Figure 4: A interactive plot that depicts how the number of full time educators in a District, and the average Class Size for a Grade Group for a school may be related to the grade transition rates. Note that there are 3 grade groups here: grades 1-3, 4-7, and 8-11."}
+ML_school_data %>%
+  mutate(yrgr = paste0("YEAR: ", ML_school_data$year, 
+                       " GRADE: ", ML_school_data$grade)) %>%
+    filter(year<2017) -> ML_school_data
+
+my_buttons <- list()
+for(i in 1:length(unique(ML_school_data$yrgr))){
+  my_buttons[[i]] <- list(method="restyle",
+                          args = list("transforms[0].value", unique(ML_school_data$yrgr)[i]),
+                          label = unique(ML_school_data$yrgr)[i]
+                          )
+}
+
+ML_school_data %>%
+  filter(SUB_POPULATION=="All Students") %>%
+  plot_ly(x=~`FULLTIME Educators CNT`, 
+          y=~AVG_CLASS_SIZE_GRADE_GROUP, 
+          type="scatter",
+          text = ~paste('</br> Year: ', year,
+                        '</br> District Number: ', district,
+                        '</br> District Name: ', DISTRICT_NAME,
+                        '</br> School: ', SCHOOL_NAME,        
+                        '</br> Grade: ', grade,
+                        '</br> Number of Full Time Educators: ', `FULLTIME Educators CNT`,
+                        '</br> Average Class Size: ', AVG_CLASS_SIZE_GRADE_GROUP,
+                        '</br> Transition Rate: ', rate),
+          hoverinfo = "text",
+          mode="markers", 
+          customdata=~yrgr,
+          size=20,
+          
+          marker = list(opacity=0.5,
+                        color=~rate,
+                        colorbar = list(title = "<b>Transition Rates (%)</b>"),
+                        colorscale='Viridis',
+                        showscale = TRUE,
+                        reversescale =TRUE,
+                        cmin=40,
+                        cmax=100),
+          transforms=list(
+            list(
+              type = 'filter',
+              target = 'customdata',
+              operation = '=',
+              value = unique(ML_school_data$yrgr)[1]
+              )
+            )) %>%
+  layout(
+    title="<b>Grade Transition Rates at a School Level",
+    yaxis = list(title = "Average Class Size for corresponding Grade Group"),
+    xaxis=list(title="Number of Full Time Educators in District"),
+    updatemenus = list(
+      list(
+        x=1,
+        y = 0.1,
+        type = 'dropdown', 
+        direction="up",
+        active = 0,
+        buttons=my_buttons)))
+```
 
 ### Machine Learning
 
