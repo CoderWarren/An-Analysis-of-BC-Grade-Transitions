@@ -3,3 +3,8 @@
 .RData
 .Ruserdata
 index_draft.Rmd
+*.csv
+data_districts/teacher-statistics-definitions-2021-11.pdf
+data_transitions/grade-to-grade-transition_field_definitions-2020-07.pdf
+data_schools/class-size-definitions-2021-02.pdf
+data_transitions/working-with-the-grade-to-grade-transition-extract-2020-07.pdf
