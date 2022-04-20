@@ -40,10 +40,7 @@ Note that this is quite a complex question, and so naturally, a lot of data is r
 
 If you wish to see the Github repository for this site, [you can find it here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions).
 
-```{r}
-#TODO: Add PDF download link
-```
-
+If you wish to see a PDF version of this report, [you can find a copy here](https://github.com/CoderWarren/An-Analysis-of-BC-Grade-Transitions/blob/main/Final_Report.pdf). The report is created after the creation of this website, so it shares many of the same content. However, do note that there are some slight differences--for instance, the PDF report features some maps that are not found here, but the site features the interactive figures that are not found there.
 
 $$\\[0.2in]$$
 
